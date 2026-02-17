@@ -1,0 +1,3508 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>iOS Simulator – Giant Script</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:radial-gradient(circle at top,#1b1f3b 0,#07070f 45%,#050505 100%);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:-apple-system,BlinkMacSystemFont;
+  color:#fff;
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-40%;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(88,194,255,.35),transparent 45%),
+    radial-gradient(circle at 80% 10%,rgba(255,124,226,.25),transparent 50%),
+    radial-gradient(circle at 50% 80%,rgba(128,255,197,.2),transparent 55%);
+  filter:blur(10px);
+  z-index:-1;
+}
+#deviceSwitch{
+  position:fixed;
+  top:16px;
+  left:16px;
+  z-index:100;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:12px;
+  padding:8px 10px;
+  backdrop-filter:blur(8px);
+  color:#fff;
+  font-size:13px;
+}
+#deviceSwitch select{
+  margin-left:8px;
+  background:#111827;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:8px;
+  padding:4px 8px;
+}
+#phone.movieMode{
+  width:1100px !important;
+  height:620px !important;
+  border-radius:26px;
+}
+#phone.movieMode #screen{
+  border-radius:18px;
+  background:radial-gradient(circle at center,#0f172a 0,#020617 70%);
+}
+#phone.movieMode #status,
+#phone.movieMode #homebar{opacity:.0;pointer-events:none;}
+#phone{
+  width:392px;height:790px;
+  background:linear-gradient(160deg,#1a1a1a,#050505);
+  border-radius:52px;
+  padding:12px;
+  box-shadow:0 25px 80px rgba(0,0,0,.75),0 0 30px rgba(98,138,255,.2);
+  border:1px solid rgba(255,255,255,.1);
+  position:relative;
+}
+#phone::before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border-radius:46px;
+  border:1px solid rgba(255,255,255,.08);
+  pointer-events:none;
+}
+#screen{
+  width:100%;height:100%;
+  border-radius:40px;
+  overflow:hidden;position:relative;
+  background:
+    linear-gradient(145deg,rgba(0,0,0,.25),rgba(0,0,0,.7)),
+    radial-gradient(circle at 20% 20%,rgba(120,180,255,.5),transparent 55%),
+    radial-gradient(circle at 80% 10%,rgba(255,140,220,.35),transparent 50%),
+    radial-gradient(circle at 50% 80%,rgba(120,255,200,.3),transparent 55%),
+    linear-gradient(140deg,#0b0f2a,#1f0f2b 55%,#0b1b2a);
+}
+#screen::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.5) 0,transparent 40%,rgba(0,0,0,.55) 100%);
+  pointer-events:none;
+  z-index:0;
+}
+#status{
+  height:40px;padding:10px 18px;
+  color:white;display:flex;
+  justify-content:space-between;
+  position:relative;
+  z-index:2;
+}
+#status::before{
+  content:"";
+  position:absolute;
+  top:6px;left:50%;
+  transform:translateX(-50%);
+  width:140px;height:26px;
+  border-radius:18px;
+  background:rgba(0,0,0,.6);
+  box-shadow:inset 0 0 6px rgba(255,255,255,.1);
+  z-index:-1;
+}
+#notch{
+  position:absolute;
+  top:10px;left:50%;
+  transform:translateX(-50%);
+  width:120px;height:22px;
+  background:#000;
+  border-radius:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+#status span{
+  font-weight:600;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+}
+#lock{
+  position:absolute;inset:0;
+  backdrop-filter:blur(30px) saturate(140%);
+  background:rgba(0,0,0,.35);
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  color:white;z-index:10;
+  gap:10px;
+  text-align:center;
+}
+#time{font-size:72px;font-weight:600;letter-spacing:2px}
+#date{
+  font-size:16px;
+  text-transform:uppercase;
+  letter-spacing:3px;
+  opacity:.85;
+}
+#lockHint{
+  margin-top:30px;
+  font-size:14px;
+  opacity:.7;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+#home{display:none;padding:32px;position:relative;z-index:1}
+.apps{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px;
+}
+.app{
+  text-align:center;
+  color:white;
+  font-size:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.icon{
+  width:64px;height:64px;
+  border-radius:18px;margin:auto;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:white;
+  box-shadow:0 10px 20px rgba(0,0,0,.35),inset 0 0 8px rgba(255,255,255,.25);
+}
+.settings{background:linear-gradient(#aaa,#555)}
+.notes{background:linear-gradient(#ffd34d,#ffb700)}
+.camera{background:linear-gradient(#444,#000)}
+.safari{background:linear-gradient(#4db8ff,#0066ff)}
+.youtube{background:red}
+.calc{background:#333}
+.clock{background:black}
+.windows{background:linear-gradient(135deg,#1c7dff,#6fe2ff)}
+.edge{background:linear-gradient(135deg,#0aa0ff,#00ffb3)}
+.winCamera{background:linear-gradient(135deg,#1f1f1f,#4b4b4b)}
+.winYouTube{background:linear-gradient(135deg,#ff2f2f,#b10000)}
+.roblox{background:linear-gradient(135deg,#202020,#555)}
+.phonemaker{background:linear-gradient(135deg,#7b61ff,#29d3ff)}
+.gemini{background:linear-gradient(135deg,#4a8bff,#9f6bff)}
+.weatherIcon{background:linear-gradient(135deg,#54b6ff,#88f0ff)}
+.vscode{background:linear-gradient(135deg,#007acc,#005a9c)}
+.videoedit{background:linear-gradient(135deg,#ff4d67,#7a5cff)}
+.phonecall{background:linear-gradient(135deg,#1abc9c,#16a085)}
+.messenger{background:linear-gradient(135deg,#4c6fff,#8a5bff)}
+.chromeos{background:linear-gradient(135deg,#1f6fff,#44c2ff)}
+.cargame{background:linear-gradient(135deg,#ff7b00,#ff2d55)}
+.baldi{background:linear-gradient(135deg,#78d64b,#2f9e44)}
+.kidracer3d{background:linear-gradient(135deg,#7c3aed,#22d3ee)}
+.geomdash{background:linear-gradient(135deg,#00e5ff,#1d4ed8)}
+.translator{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.videohub{background:linear-gradient(135deg,#f43f5e,#7c3aed)}
+.widgetRow{
+  display:flex;
+  gap:16px;
+  margin-bottom:24px;
+}
+.widget{
+  flex:1;
+  background:rgba(255,255,255,.12);
+  border-radius:20px;
+  padding:14px;
+  backdrop-filter:blur(10px);
+  box-shadow:inset 0 0 10px rgba(255,255,255,.08);
+}
+.widgetTitle{
+  font-size:12px;
+  letter-spacing:1px;
+  opacity:.7;
+  text-transform:uppercase;
+}
+.weather{
+  font-size:28px;
+  margin-top:8px;
+}
+.dock{
+  margin-top:28px;
+  background:rgba(0,0,0,.35);
+  border-radius:28px;
+  padding:14px 22px;
+  display:flex;
+  justify-content:space-between;
+  backdrop-filter:blur(18px);
+}
+.dock .icon{
+  width:54px;height:54px;
+  border-radius:16px;
+  font-size:26px;
+}
+
+.winWrap{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(125,188,255,.55),transparent 35%),
+    radial-gradient(circle at 85% 15%,rgba(143,127,255,.5),transparent 40%),
+    radial-gradient(circle at 30% 90%,rgba(54,103,255,.45),transparent 45%),
+    linear-gradient(155deg,#061b45 0%,#0b2359 35%,#08152f 100%);
+  position:relative;
+}
+.winHeader{
+  height:40px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#f4f9ff;
+  font-size:12px;
+  background:rgba(14,29,71,.45);
+  border-bottom:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(16px);
+}
+.winHeader .winTitle{
+  font-weight:600;
+  letter-spacing:.2px;
+}
+.winDesktop{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(6,minmax(96px,1fr));
+  align-content:start;
+  gap:14px;
+  padding:22px 24px 12px;
+}
+.winTile{
+  width:100%;
+  min-height:92px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:12px;
+  border-radius:12px;
+  cursor:pointer;
+  padding:8px 6px;
+  border:1px solid transparent;
+  transition:.18s ease;
+}
+.winTile:hover{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.3);
+}
+.winTile strong{
+  font-weight:500;
+  text-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+.winTile span{
+  display:none;
+}
+.winTile .icon{
+  width:48px;height:48px;
+  border-radius:14px;
+  font-size:20px;
+}
+.winTaskbar{
+  height:60px;
+  background:rgba(13,22,50,.56);
+  border-top:1px solid rgba(255,255,255,.2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+  backdrop-filter:blur(20px);
+}
+.winTaskCenter{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0 auto;
+}
+.winTaskbar .icon{
+  width:38px;height:38px;
+  border-radius:11px;
+  font-size:18px;
+  border:1px solid rgba(255,255,255,.2);
+}
+.winTaskbar .icon:hover{
+  filter:brightness(1.1);
+}
+.winSearchPill{
+  min-width:170px;
+  height:36px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.12);
+  color:#e7f2ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+}
+.winTray{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:#eaf2ff;
+}
+.winQuick{
+  padding:6px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+}
+.winAppPane{
+  position:absolute;
+  inset:58px 16px 74px;
+  background:rgba(8,16,38,.9);
+  border-radius:16px;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 22px 50px rgba(0,0,0,.45);
+}
+.winAppHeader{
+  padding:10px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,.08);
+  color:#f5f7ff;
+  font-weight:600;
+}
+.winAppHeader button{
+  border:none;
+  background:rgba(255,255,255,.2);
+  color:#fff;
+  border-radius:8px;
+  padding:4px 10px;
+  cursor:pointer;
+}
+
+.winStartMenu{
+  position:absolute;
+  left:50%;
+  bottom:76px;
+  transform:translateX(-50%);
+  width:380px;
+  background:rgba(18,30,66,.84);
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:16px;
+  padding:14px;
+  display:none;
+  backdrop-filter:blur(20px);
+  box-shadow:0 20px 45px rgba(0,0,0,.45);
+  z-index:25;
+}
+.winStartTitle{font-size:12px;opacity:.8;margin-bottom:10px;}
+.winStartGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.winStartItem{
+  border:none;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  border-radius:10px;
+  padding:8px 6px;
+  font-size:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+}
+.winStartItem:hover{background:rgba(255,255,255,.18);}
+.winAppContent{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.winAppView{
+  flex:1;
+  display:none;
+}
+.winAppView.active{
+  display:flex;
+  flex-direction:column;
+}
+#windows11{
+  border-radius:40px;
+  overflow:hidden;
+  background:transparent;
+}
+.minecraftStage{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:900px;
+  background:linear-gradient(180deg,#0b1a2e,#09101f);
+}
+.minecraftCube{
+  width:140px;
+  height:140px;
+  position:relative;
+  transform-style:preserve-3d;
+  animation:spinCube 12s linear infinite;
+}
+.minecraftFace{
+  position:absolute;
+  width:140px;
+  height:140px;
+  background-size:24px 24px;
+  border:2px solid rgba(0,0,0,.2);
+}
+.minecraftGrass{
+  background-image:
+    linear-gradient(#2aa84a 0 35%, #7a4b2b 35% 100%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 2px, transparent 2px 24px);
+}
+.minecraftDirt{
+  background-image:
+    linear-gradient(#7a4b2b, #5a351d),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 2px, transparent 2px 24px);
+}
+.minecraftStone{
+  background-image:
+    linear-gradient(#8f99a4, #6b7480),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.1) 0 2px, transparent 2px 24px);
+}
+.minecraftFace.front{transform:translateZ(70px);}
+.minecraftFace.back{transform:rotateY(180deg) translateZ(70px);}
+.minecraftFace.right{transform:rotateY(90deg) translateZ(70px);}
+.minecraftFace.left{transform:rotateY(-90deg) translateZ(70px);}
+.minecraftFace.top{transform:rotateX(90deg) translateZ(70px);}
+.minecraftFace.bottom{transform:rotateX(-90deg) translateZ(70px);}
+@keyframes spinCube{
+  0%{transform:rotateX(20deg) rotateY(0deg);}
+  50%{transform:rotateX(30deg) rotateY(180deg);}
+  100%{transform:rotateX(20deg) rotateY(360deg);}
+}
+.robloxLayout{
+  flex:1;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:14px;
+  padding:14px;
+  background:linear-gradient(180deg,#101116,#0a0a0e);
+}
+.robloxPanel{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:12px;
+  color:#fff;
+}
+.robloxPanel h4{
+  margin-bottom:10px;
+  font-size:13px;
+  opacity:.9;
+  letter-spacing:.3px;
+}
+.robloxCharacters{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.robloxCharacter{
+  background:#1a1d29;
+  border-radius:10px;
+  padding:8px;
+  text-align:center;
+  cursor:pointer;
+  border:1px solid transparent;
+}
+.robloxCharacter.active{
+  border-color:#3ca0ff;
+  box-shadow:0 0 0 2px rgba(60,160,255,.2);
+}
+.avatar3d{
+  width:100%;
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:700px;
+}
+.avatar3d .avatarBody{
+  width:34px;
+  height:34px;
+  background:linear-gradient(145deg,#68b7ff,#2f6cd4);
+  transform-style:preserve-3d;
+  transform:rotateX(20deg) rotateY(35deg);
+  position:relative;
+  animation:avatarSpin 6s linear infinite;
+}
+.avatar3d .avatarBody::before,
+.avatar3d .avatarBody::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:inherit;
+}
+.avatar3d .avatarBody::before{transform:rotateY(90deg) translateZ(17px);}
+.avatar3d .avatarBody::after{transform:rotateX(90deg) translateZ(17px);}
+.robloxCharacter:nth-child(2) .avatarBody{background:linear-gradient(145deg,#ff9f63,#d2502f)}
+.robloxCharacter:nth-child(3) .avatarBody{background:linear-gradient(145deg,#98ff8a,#2f9c49)}
+@keyframes avatarSpin{to{transform:rotateX(20deg) rotateY(395deg);}}
+.robloxGames{
+  display:grid;
+  gap:8px;
+}
+.robloxGameBtn{
+  border:none;
+  background:linear-gradient(90deg,#1f2435,#30374f);
+  color:#fff;
+  border-radius:10px;
+  padding:10px;
+  text-align:left;
+  cursor:pointer;
+}
+.robloxNowPlaying{
+  margin-top:10px;
+  font-size:12px;
+  opacity:.8;
+}
+.phoneMakerLayout{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:14px;
+  background:linear-gradient(180deg,#111427,#090b14);
+  color:#fff;
+}
+.phoneMakerCard{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  padding:12px;
+}
+.phoneMakerSwatches{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.swatch{
+  width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;
+}
+.wallBtn{
+  width:100%;
+  margin-top:8px;
+  border:none;
+  border-radius:10px;
+  padding:8px;
+  color:#fff;
+  cursor:pointer;
+  background:linear-gradient(90deg,#28314f,#43507d);
+}
+.phonePreviewMini{
+  width:90px;height:170px;border-radius:24px;padding:6px;margin:10px auto 0;
+  background:#050505;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+.phonePreviewMiniScreen{
+  width:100%;height:100%;border-radius:18px;
+  background:linear-gradient(140deg,#0b0f2a,#1f0f2b 55%,#0b1b2a);
+}
+.designApply{
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  padding:9px 10px;
+  width:100%;
+  cursor:pointer;
+  background:linear-gradient(90deg,#2ecc71,#27ae60);
+  color:#052;
+  font-weight:700;
+}
+.editorLayout{
+  grid-template-columns:1fr;
+}
+.editorLayout .phoneMakerCard{
+  min-height:0;
+}
+.editorText{
+  min-height:130px !important;
+}
+.editorPreview{
+  min-height:210px;
+}
+.bootOverlay{
+  position:absolute;
+  inset:0;
+  background:#020308;
+  color:#cfe3ff;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  z-index:40;
+}
+.bootSpinner{
+  width:42px;height:42px;
+  border-radius:50%;
+  border:4px solid rgba(255,255,255,.15);
+  border-top-color:#5da8ff;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
+.chromeOsWindow{
+  background:linear-gradient(160deg,#eff5ff,#dbeafe 55%,#d7efff);
+  color:#0f172a;
+}
+.chromeOsTop{
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  background:rgba(255,255,255,.75);
+  border-bottom:1px solid rgba(15,23,42,.1);
+}
+.chromeOsDesk{
+  flex:1;
+  padding:18px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(86px,1fr));
+  align-content:start;
+  gap:12px;
+}
+.chromeOsApp{
+  text-align:center;
+  font-size:12px;
+  color:#0f172a;
+}
+.chromeOsApp .icon{width:54px;height:54px;font-size:24px;}
+.chromeShelf{
+  height:64px;
+  background:rgba(255,255,255,.75);
+  border-top:1px solid rgba(15,23,42,.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.appWindow{
+  position:absolute;inset:0;
+  background:white;display:none;
+  flex-direction:column;z-index:20;
+}
+.header{
+  height:50px;background:#f2f2f2;
+  display:flex;align-items:center;
+  justify-content:center;font-weight:600;
+}
+.cameraControls{
+  padding:10px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:#111;
+}
+.cameraControls button{
+  border:none;
+  border-radius:10px;
+  padding:8px 10px;
+  color:#fff;
+  cursor:pointer;
+  background:#2c2c2c;
+}
+.cameraStatus{
+  margin-left:auto;
+  font-size:12px;
+  opacity:.9;
+}
+
+.carHud{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 12px;background:#111;color:#fff;font-size:13px}
+.carStage{flex:1;position:relative;background:linear-gradient(180deg,#70b8ff 0,#d0efff 40%,#1f2937 40%,#111827 100%);overflow:hidden}
+#carCanvas{width:100%;height:100%;display:block;background:linear-gradient(180deg,#7ec9ff 0,#d3f0ff 45%,#1f2937 45%,#111827 100%)}
+.carControls{padding:10px;background:#0f172a;display:flex;gap:8px;flex-wrap:wrap}
+.carControls button{border:none;border-radius:10px;padding:8px 12px;color:#fff;background:#1f2937;cursor:pointer}
+.carControls .boostBtn{background:linear-gradient(90deg,#fb7185,#ef4444)}
+
+.baldiWrap{flex:1;display:grid;grid-template-rows:auto 1fr auto;background:linear-gradient(180deg,#f4ffe8,#e7f7db 55%,#d7efc8)}
+.baldiHud{display:flex;gap:10px;justify-content:space-between;padding:10px 12px;background:#176534;color:#f0fdf4;font-size:13px;border-bottom:2px solid #0f3f21}
+.baldiBoard{padding:14px;display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch}
+.baldiCard{background:#fff;border:2px solid #86efac;border-radius:14px;padding:14px;box-shadow:0 12px 22px rgba(0,0,0,.12)}
+.baldiQuestion{font-size:34px;font-weight:700;color:#14532d;margin:8px 0 12px;font-family:"Comic Sans MS","Chalkboard SE",cursive}
+.baldiInput{width:100%;padding:10px;border-radius:10px;border:1px solid #4ade80;font-size:18px}
+.baldiBtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.baldiBtns button{border:none;border-radius:10px;padding:8px 12px;background:#16a34a;color:#fff;cursor:pointer}
+.baldiDanger{background:#dc2626 !important}
+.baldiScene{height:230px;border-radius:12px;position:relative;overflow:hidden;perspective:900px;background:linear-gradient(180deg,#fefce8 0,#f8f5cf 42%,#d6d3d1 42%,#bfb8aa 100%);border:2px solid #86efac}
+.baldiHallway{position:absolute;inset:0;transform-style:preserve-3d}
+.baldiWallL,.baldiWallR{position:absolute;top:0;bottom:0;width:45%;background:repeating-linear-gradient(180deg,#fff 0 24px,#f3f4f6 24px 48px);}
+.baldiWallL{left:-8%;transform:rotateY(32deg);transform-origin:left center}
+.baldiWallR{right:-8%;transform:rotateY(-32deg);transform-origin:right center}
+.baldiFloor{position:absolute;left:18%;right:18%;bottom:-4px;height:58%;background:repeating-linear-gradient(90deg,#b45309 0 28px,#a16207 28px 56px);transform:rotateX(66deg);transform-origin:bottom center;box-shadow:0 -20px 30px rgba(0,0,0,.2) inset}
+.baldiCeil{position:absolute;left:18%;right:18%;top:-6px;height:44%;background:repeating-linear-gradient(90deg,#f8fafc 0 36px,#e5e7eb 36px 72px);transform:rotateX(-72deg);transform-origin:top center;opacity:.9}
+#baldiNotebookDot{position:absolute;top:88px;left:50%;transform:translateX(-50%);width:40px;height:54px;border:2px solid #0f172a;background:#fff;color:#111;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+#baldiTeacher{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:76px;height:122px;border-radius:12px;background:linear-gradient(180deg,#fef08a,#86efac);border:3px solid #166534;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-size:28px;box-shadow:0 10px 20px rgba(0,0,0,.3)}
+#baldiPlayer{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:56px;height:18px;border-radius:999px;background:#0ea5e9;box-shadow:0 0 0 3px #e0f2fe inset,0 0 16px rgba(14,165,233,.6)}
+.baldiFooter{padding:0 14px 12px;color:#14532d;font-size:12px}
+
+.kidRacerHud{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:10px 12px;background:#111827;color:#e5f3ff;font-size:13px}
+.kidRacerStage{flex:1;position:relative;overflow:hidden;background:linear-gradient(180deg,#87ceeb 0,#dbeafe 45%,#1f2937 45%,#111827 100%)}
+#kidRacerCanvas{width:100%;height:100%;display:block}
+.kidRacerControls{padding:10px;background:#0b1022;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kidRacerControls button{border:none;border-radius:10px;padding:8px 12px;background:#1f2937;color:#fff;cursor:pointer}
+.kidRacerControls .kidNitro{background:linear-gradient(90deg,#06b6d4,#2563eb)}
+
+.gdHud{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:10px 12px;background:#041a3a;color:#dbeafe;font-size:13px}
+.gdStage{flex:1;position:relative;background:linear-gradient(180deg,#0ea5e9 0,#1d4ed8 55%,#0b1026 55%,#070b1a 100%);overflow:hidden}
+#gdCanvas{width:100%;height:100%;display:block}
+.gdControls{padding:10px;background:#050b21;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gdControls button{border:none;border-radius:10px;padding:8px 12px;background:#1e3a8a;color:#fff;cursor:pointer}
+.gdControls .gdJump{background:linear-gradient(90deg,#06b6d4,#2563eb)}
+
+.translatorWrap{padding:14px;display:grid;gap:10px;background:#f8fffb;color:#064e3b}
+.translatorWrap textarea,.translatorWrap select{padding:10px;border-radius:10px;border:1px solid #86efac;font-size:14px}
+.translatorWrap button{border:none;border-radius:10px;padding:9px 12px;background:#16a34a;color:#fff;cursor:pointer}
+.videoHubWrap{padding:12px;display:grid;gap:12px;background:#f8fafc;color:#0f172a}
+.videoPublishCard,.videoFeedCard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+.videoHubWrap input,.videoHubWrap textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #cbd5e1;margin-top:6px}
+.videoHubWrap button{border:none;border-radius:10px;padding:8px 12px;background:#7c3aed;color:#fff;cursor:pointer}
+.videoPost{border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-top:10px;background:#fff}
+.videoPost video,.videoPost iframe{width:100%;max-height:260px;border:none;border-radius:10px;background:#000}
+.back{
+  position:absolute;left:10px;top:15px;
+  color:#007aff;cursor:pointer;
+}
+input,textarea,button{
+  font-size:16px;
+}
+#homebar{
+  position:absolute;bottom:8px;left:50%;
+  transform:translateX(-50%);
+  width:140px;height:5px;
+  background:rgba(255,255,255,.85);border-radius:5px;
+  box-shadow:0 4px 10px rgba(0,0,0,.4);
+}
+</style>
+</head>
+
+<body>
+<div id="deviceSwitch">Device <select id="deviceSelect" onchange="setDeviceProfile(this.value)"><option value="iphone">iPhone</option><option value="ipad">iPad</option><option value="computer">Computer</option></select></div>
+<div id="phone"><div id="screen">
+
+<div id="status">
+  <span id="clock">9:41</span>
+  <span>📶 🔋</span>
+  <div id="notch"></div>
+</div>
+
+<div id="lock" onclick="unlock()">
+  <div id="time">9:41</div>
+  <div id="date">Friday • Dream Mode</div>
+  <div id="lockHint">Swipe up to unlock ✨</div>
+  <div id="faceControls" style="margin-top:12px">
+    <button id="faceBtn" onclick="startFaceID()" style="padding:8px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,#2ecc71,#27ae60);color:#021;cursor:pointer">Use Face ID</button>
+    <div id="faceStatus" style="margin-top:8px;opacity:.85;font-size:13px"></div>
+    <div id="faceOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;z-index:50">
+      <div style="width:340px;height:520px;background:#000;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+        <video id="faceVideo" autoplay playsinline style="flex:1;background:#000"></video>
+        <div style="padding:10px;display:flex;gap:8px;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)">
+          <button onclick="stopFaceID()" style="padding:8px 12px;border-radius:10px;border:none;background:#fff;color:#111;cursor:pointer">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="home">
+  <div class="widgetRow">
+    <div class="widget">
+      <div class="widgetTitle">Today</div>
+      <div class="weather">24° ☀️</div>
+      <div style="font-size:12px;opacity:.7">Feels like 26° • Clear</div>
+    </div>
+    <div class="widget">
+      <div class="widgetTitle">Focus</div>
+      <div style="font-size:20px;margin-top:10px">Deep Work</div>
+      <div style="font-size:12px;opacity:.7;margin-top:6px">2h 14m remaining</div>
+    </div>
+  </div>
+    <div class="apps">
+      <div class="app" onclick="openApp('settings')"><div class="icon settings">⚙️</div>Settings</div>
+      <div class="app" onclick="openMap()"><div class="icon safari">🗺️</div>Maps</div>
+      <div class="app" onclick="openApp('notes')"><div class="icon notes">📝</div>Notes</div>
+      <div class="app" onclick="openCamera()"><div class="icon camera">📷</div>Camera</div>
+      <div class="app" onclick="openWindows11()"><div class="icon windows">🪟</div>Windows 11</div>
+      <div class="app" onclick="openApp('chromeOS')"><div class="icon chromeos">◎</div>Chrome OS</div>
+      <div class="app" onclick="openCarGame()"><div class="icon cargame">🏎️</div>Car Game</div>
+      <div class="app" onclick="openKidRacer3D()"><div class="icon kidracer3d">🚗</div>Kid Racer 3D</div>
+      <div class="app" onclick="openGeometryDashLite()"><div class="icon geomdash">◼️</div>Geometry Dash Lite</div>
+      <div class="app" onclick="openBaldiBasics()"><div class="icon baldi">📗</div>Baldi's Basics</div>
+      <div class="app" onclick="openApp('minecraft')"><div class="icon calc">🧱</div>Minecraft</div>
+      <div class="app" onclick="openApp('roblox')"><div class="icon roblox">◧</div>Roblox</div>
+      <div class="app" onclick="openApp('phoneMaker')"><div class="icon phonemaker">🎨</div>Phone Maker</div>
+      <div class="app" onclick="openApp('gemini')"><div class="icon gemini">✦</div>Gemini</div>
+      <div class="app" onclick="openApp('weatherApp')"><div class="icon weatherIcon">☀️</div>Weather</div>
+      <div class="app" onclick="openApp('translatorApp')"><div class="icon translator">🌍</div>Translator</div>
+      <div class="app" onclick="openApp('videoHubApp')"><div class="icon videohub">📺</div>Video Hub</div>
+      <div class="app" onclick="openApp('vscodeApp')"><div class="icon vscode">💻</div>VS Code</div>
+      <div class="app" onclick="openApp('videoEditorApp')"><div class="icon videoedit">🎬</div>Video Editor</div>
+      <div class="app" onclick="openApp('phoneApp')"><div class="icon phonecall">📞</div>Phone</div>
+      <div class="app" onclick="openApp('messengerApp')"><div class="icon messenger">💬</div>Messenger</div>
+      <div class="app" onclick="openSafariApp()"><div class="icon safari">🌐</div>Safari</div>
+      <div class="app" onclick="openYouTube()"><div class="icon youtube">▶️</div>YouTube</div>
+      <div class="app" onclick="openApp('calc')"><div class="icon calc">🧮</div>Calc</div>
+      <div class="app" onclick="openApp('clockApp')"><div class="icon clock">⏰</div>Clock</div>
+  </div>
+  <div class="dock">
+    <div class="icon safari">🌐</div>
+    <div class="icon notes">📝</div>
+    <div class="icon youtube">▶️</div>
+    <div class="icon settings">⚙️</div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="appWindow" id="settings">
+  <div class="header">Settings</div>
+  <div class="back" onclick="closeApp('settings')">Back</div>
+  <p style="padding:20px">Wi-Fi • Bluetooth • Display</p>
+</div>
+
+<!-- NOTES -->
+<div class="appWindow" id="notes">
+  <div class="header">Notes</div>
+  <div class="back" onclick="closeApp('notes')">Back</div>
+  <textarea id="noteArea" style="flex:1;border:none;padding:15px">My notes…</textarea>
+</div>
+
+<!-- PHONE -->
+<div class="appWindow" id="phoneApp">
+  <div class="header">Phone</div>
+  <div class="back" onclick="closeApp('phoneApp')">Back</div>
+  <div style="padding:12px;display:grid;gap:10px">
+    <input id="phoneNumberInput" placeholder="Enter number" style="padding:10px;border-radius:10px;border:1px solid #ccc">
+    <button class="designApply" onclick="startCall()">Call Number</button>
+    <div style="display:grid;gap:8px">
+      <button class="wallBtn" onclick="startCall('15551230001','Alex')">📞 Alex</button>
+      <button class="wallBtn" onclick="startCall('15551230002','Jordan')">📞 Jordan</button>
+      <button class="wallBtn" onclick="startCall('15551230003','Sam')">📞 Sam</button>
+    </div>
+    <div id="callStatus" class="robloxNowPlaying">Ready to call.</div>
+    <button class="wallBtn" onclick="endCall()">End Call</button>
+  </div>
+</div>
+
+<!-- MESSENGER -->
+<div class="appWindow" id="messengerApp">
+  <div class="header">Messenger</div>
+  <div class="back" onclick="closeApp('messengerApp')">Back</div>
+  <div class="phoneMakerLayout editorLayout">
+    <div class="phoneMakerCard" style="display:grid;gap:8px">
+      <h4>People</h4>
+      <button class="wallBtn" onclick="openChat('Alex')">Alex</button>
+      <button class="wallBtn" onclick="openChat('Jordan')">Jordan</button>
+      <button class="wallBtn" onclick="openChat('Sam')">Sam</button>
+    </div>
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column;gap:8px">
+      <h4 id="chatTitle">Chat</h4>
+      <div id="chatLog" style="flex:1;min-height:180px;background:#0f172a;color:#dbeafe;border-radius:10px;padding:10px;overflow:auto">Pick a person to start texting.</div>
+      <div style="display:flex;gap:8px">
+        <input id="chatInput" placeholder="Type a message" style="flex:1;padding:10px;border-radius:10px;border:1px solid #ccc">
+        <button class="designApply" style="width:auto" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SAFARI -->
+<div class="appWindow" id="safari">
+  <div class="header">Safari</div>
+  <div class="back" onclick="closeSafari()">Back</div>
+  <input id="safariInput" placeholder="Search or enter website"
+    style="margin:10px;padding:8px;border-radius:8px;border:1px solid #ccc">
+  <iframe id="safariFrame" style="flex:1;border:none"></iframe>
+</div>
+
+<!-- WINDOWS 11 -->
+<div class="appWindow" id="windows11">
+  <div class="bootOverlay" id="bootOverlay">
+    <div class="bootSpinner"></div>
+    <div>Rebooting to Windows 11...</div>
+  </div>
+  <div class="winWrap">
+    <div class="winHeader">
+      <span class="winTitle">Windows 11 Pro</span>
+      <span>Fri 9:41 AM · Focus</span>
+    </div>
+    <div class="winDesktop">
+      <div class="winTile" onclick="openWindowsApp('edge')" style="cursor:pointer">
+        <div class="icon edge">🌐</div>
+        <strong>Edge</strong>
+        <span style="opacity:.7">Browse the web fast</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('camera')" style="cursor:pointer">
+        <div class="icon winCamera">📷</div>
+        <strong>Camera</strong>
+        <span style="opacity:.7">Take a quick photo</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('youtube')" style="cursor:pointer">
+        <div class="icon winYouTube">▶️</div>
+        <strong>YouTube</strong>
+        <span style="opacity:.7">Watch trending</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('settings')" style="cursor:pointer">
+        <div class="icon settings">⚙️</div>
+        <strong>Settings</strong>
+        <span style="opacity:.7">Personalize</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('notes')" style="cursor:pointer">
+        <div class="icon notes">📝</div>
+        <strong>Notes</strong>
+        <span style="opacity:.7">Quick ideas</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('maps')" style="cursor:pointer">
+        <div class="icon safari">🗺️</div>
+        <strong>Maps</strong>
+        <span style="opacity:.7">Explore places</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('remoteDesktop')" style="cursor:pointer">
+        <div class="icon windows">🖥️</div>
+        <strong>Remote Desktop</strong>
+        <span style="opacity:.7">Connect to Computer</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('minecraft')" style="cursor:pointer">
+        <div class="icon calc">🧱</div>
+        <strong>Minecraft 3D</strong>
+        <span style="opacity:.7">Spin the block</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('roblox')" style="cursor:pointer">
+        <div class="icon roblox">◧</div>
+        <strong>Roblox</strong>
+        <span style="opacity:.7">Avatars + Games</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('phoneMaker')" style="cursor:pointer">
+        <div class="icon phonemaker">🎨</div>
+        <strong>Phone Maker</strong>
+        <span style="opacity:.7">Design your phone</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('gemini')" style="cursor:pointer">
+        <div class="icon gemini">✦</div>
+        <strong>Gemini</strong>
+        <span style="opacity:.7">Ask anything</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('weather')" style="cursor:pointer">
+        <div class="icon weatherIcon">☀️</div>
+        <strong>Weather</strong>
+        <span style="opacity:.7">Forecast now</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('vscode')" style="cursor:pointer">
+        <div class="icon vscode">💻</div>
+        <strong>VS Code</strong>
+        <span style="opacity:.7">Edit & preview</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('videoEditor')" style="cursor:pointer">
+        <div class="icon videoedit">🎬</div>
+        <strong>Video Editor</strong>
+        <span style="opacity:.7">Trim + FX + Export frame</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('phone')" style="cursor:pointer">
+        <div class="icon phonecall">📞</div>
+        <strong>Phone</strong>
+        <span style="opacity:.7">Call contacts</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('messenger')" style="cursor:pointer">
+        <div class="icon messenger">💬</div>
+        <strong>Messenger</strong>
+        <span style="opacity:.7">Text people</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('chromeOS')" style="cursor:pointer">
+        <div class="icon chromeos">◎</div>
+        <strong>Chrome OS</strong>
+        <span style="opacity:.7">Open Chromebook mode</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('baldi')" style="cursor:pointer">
+        <div class="icon baldi">📗</div>
+        <strong>Baldi's Basics</strong>
+        <span style="opacity:.7">Collect notebooks</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('kidRacer3D')" style="cursor:pointer">
+        <div class="icon kidracer3d">🚗</div>
+        <strong>Kid Racer 3D</strong>
+        <span style="opacity:.7">Fun road challenge</span>
+      </div>
+      <div class="winTile" onclick="openWindowsApp('geometryDashLite')" style="cursor:pointer">
+        <div class="icon geomdash">◼️</div>
+        <strong>Geometry Dash Lite</strong>
+        <span style="opacity:.7">Jump and survive</span>
+      </div>
+    </div>
+    <div class="winAppPane" id="winAppPane">
+      <div class="winAppHeader">
+        <span id="winAppTitle">App</span>
+        <button onclick="closeWinApp()">✕</button>
+      </div>
+      <div class="winAppContent">
+        <div class="winAppView" id="winEdge">
+          <div style="display:flex;gap:8px;padding:10px">
+            <input id="edgeInput" placeholder="Search or enter website" style="flex:1;padding:8px;border-radius:8px;border:1px solid #3b4a66;background:#0c1326;color:#fff">
+            <button onclick="searchEdge()" style="padding:8px 12px;border-radius:8px;border:none;background:#1b7dff;color:#fff;cursor:pointer">Go</button>
+          </div>
+          <iframe id="edgeFrame" style="flex:1;border:none;background:#000"></iframe>
+        </div>
+        <div class="winAppView" id="winCamera">
+          <video id="winCam" autoplay playsinline style="flex:1;background:#000"></video>
+        </div>
+        <div class="winAppView" id="winYouTube">
+          <div style="padding:10px;display:flex;justify-content:flex-end">
+            <button onclick="openYouTube()" style="padding:8px 12px;border-radius:8px;border:none;background:#ff2f2f;color:#fff;cursor:pointer">Open in YouTube</button>
+          </div>
+          <iframe id="winTube" style="flex:1;border:none" allowfullscreen referrerpolicy="no-referrer-when-downgrade" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+        </div>
+        <div class="winAppView" id="winSettings">
+          <div style="padding:16px;color:#fff">
+            <h3 style="margin-bottom:10px">Settings</h3>
+            <ul style="list-style:none;display:grid;gap:8px;font-size:14px">
+              <li>Bluetooth • Connected</li>
+              <li>Wi‑Fi • Home Network</li>
+              <li>Display • 4K HDR</li>
+              <li>Personalization • Dark</li>
+            </ul>
+          </div>
+        </div>
+        <div class="winAppView" id="winNotes">
+          <textarea id="winNoteArea" style="flex:1;border:none;padding:15px;background:#0c1326;color:#fff">Windows notes…</textarea>
+        </div>
+        <div class="winAppView" id="winMaps">
+          <iframe id="winMapFrame" style="flex:1;border:none" src="https://www.openstreetmap.org/export/embed.html"></iframe>
+        </div>
+        <div class="winAppView" id="winRemoteDesktop">
+          <div style="padding:18px;color:#fff;display:grid;gap:12px;max-width:520px">
+            <h3 style="font-size:22px">Remote Desktop Connection</h3>
+            <p style="opacity:.85;line-height:1.4">Connect to your computer session and switch this simulator into computer mode.</p>
+            <label style="font-size:13px;opacity:.85">Computer name</label>
+            <input id="rdpTarget" value="Alex-PC" style="padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:#0f1d45;color:#fff" placeholder="Enter PC name">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="designApply" style="width:auto" onclick="connectRemoteDesktop()">Connect</button>
+              <button class="wallBtn" style="width:auto" onclick="closeWinApp()">Cancel</button>
+            </div>
+            <div id="rdpStatus" class="robloxNowPlaying">Ready.</div>
+          </div>
+        </div>
+        <div class="winAppView" id="winMinecraft">
+          <div class="minecraftStage">
+            <div class="minecraftCube">
+              <div class="minecraftFace front minecraftGrass"></div>
+              <div class="minecraftFace back minecraftGrass"></div>
+              <div class="minecraftFace right minecraftGrass"></div>
+              <div class="minecraftFace left minecraftGrass"></div>
+              <div class="minecraftFace top minecraftGrass"></div>
+              <div class="minecraftFace bottom minecraftDirt"></div>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winRoblox">
+          <div class="robloxLayout">
+            <div class="robloxPanel">
+              <h4>Choose 3D Character</h4>
+              <div class="robloxCharacters" id="robloxCharacters">
+                <div class="robloxCharacter active" onclick="selectRobloxCharacter(0)"><div class="avatar3d"><div class="avatarBody"></div></div><small>Builder</small></div>
+                <div class="robloxCharacter" onclick="selectRobloxCharacter(1)"><div class="avatar3d"><div class="avatarBody"></div></div><small>Runner</small></div>
+                <div class="robloxCharacter" onclick="selectRobloxCharacter(2)"><div class="avatar3d"><div class="avatarBody"></div></div><small>Wizard</small></div>
+              </div>
+              <div class="robloxNowPlaying" id="robloxSelected">Selected: Builder</div>
+            </div>
+            <div class="robloxPanel">
+              <h4>Games to Play</h4>
+              <div class="robloxGames">
+                <button class="robloxGameBtn" onclick="playRobloxGame('obby')">🏃 Speed Obby Challenge</button>
+                <button class="robloxGameBtn" onclick="playRobloxGame('tycoon')">🏭 Mega Factory Tycoon</button>
+                <button class="robloxGameBtn" onclick="playRobloxGame('sim')">🐾 Pet Simulator Galaxy</button>
+                <button class="robloxGameBtn" onclick="playRobloxGame('battle')">⚔️ Battle Arena Legends</button>
+              </div>
+              <div class="robloxNowPlaying" id="robloxGameStatus">No game launched yet.</div>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winPhoneMaker">
+          <div class="phoneMakerLayout">
+            <div class="phoneMakerCard">
+              <h4>Body Color</h4>
+              <div class="phoneMakerSwatches">
+                <button class="swatch" style="background:#050505" onclick="setPhoneColor('#050505')"></button>
+                <button class="swatch" style="background:#1f2940" onclick="setPhoneColor('#1f2940')"></button>
+                <button class="swatch" style="background:#3e1d52" onclick="setPhoneColor('#3e1d52')"></button>
+                <button class="swatch" style="background:#3f2b1f" onclick="setPhoneColor('#3f2b1f')"></button>
+              </div>
+              <h4 style="margin-top:10px">Wallpaper</h4>
+              <button class="wallBtn" onclick="setPhoneWallpaper('nebula')">Nebula</button>
+              <button class="wallBtn" onclick="setPhoneWallpaper('sunset')">Sunset</button>
+              <button class="wallBtn" onclick="setPhoneWallpaper('matrix')">Matrix</button>
+            </div>
+            <div class="phoneMakerCard">
+              <h4>Preview</h4>
+              <div class="phonePreviewMini" id="phonePreviewMini">
+                <div class="phonePreviewMiniScreen" id="phonePreviewMiniScreen"></div>
+              </div>
+              <div class="robloxNowPlaying" id="winPhoneMakerStatus">Ready to design.</div>
+              <button class="designApply" onclick="applyPhoneDesign()">Apply & Use Phone</button>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winGemini">
+          <div class="phoneMakerLayout">
+            <div class="phoneMakerCard">
+              <h4>Built-in AI Assistant</h4>
+              <p style="font-size:13px;opacity:.85;line-height:1.4">This AI runs directly in this website and responds instantly without opening another tab.</p>
+              <textarea id="geminiPromptWin" style="margin-top:8px;width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.15);padding:10px;background:#111827;color:#fff" placeholder="Ask the AI anything..."></textarea>
+              <button class="designApply" onclick="askBuiltInAI('win')">Ask AI</button>
+              <button class="wallBtn" onclick="clearAI('win')">Clear Chat</button>
+            </div>
+            <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+              <h4>AI Reply</h4>
+              <div id="geminiStatusWin" class="robloxNowPlaying">Ready.</div>
+              <div id="geminiFrameWin" style="margin-top:8px;flex:1;border:none;border-radius:10px;background:#0f172a;color:#dbeafe;padding:12px;line-height:1.45;overflow:auto">Hi! I’m your built-in AI assistant. Ask me about this phone simulator, design tips, app ideas, or coding basics.</div>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winWeather">
+          <div class="phoneMakerLayout">
+            <div class="phoneMakerCard">
+              <h4>Weather Finder</h4>
+              <input id="weatherCityWin" placeholder="Enter city" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#111827;color:#fff">
+              <button class="designApply" onclick="updateWeather('win')">Check Weather</button>
+            </div>
+            <div class="phoneMakerCard">
+              <h4>Forecast</h4>
+              <div id="weatherOutputWin" class="robloxNowPlaying">Type a city to see weather.</div>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winVSCode">
+          <div class="phoneMakerLayout editorLayout">
+            <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+              <h4>VS Code Lite</h4>
+              <textarea id="vscodeEditorWin" class="editorText" style="margin-top:8px;flex:1;min-height:170px;border-radius:10px;border:1px solid rgba(255,255,255,.15);padding:10px;background:#0f172a;color:#dbeafe">&lt;h1&gt;Hello from VS Code Lite&lt;/h1&gt;\n&lt;p&gt;Edit and preview your HTML.&lt;/p&gt;</textarea>
+              <button class="designApply" onclick="runVSCode('win')">Run Preview</button>
+            </div>
+            <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+              <h4>Preview</h4>
+              <iframe id="vscodePreviewWin" class="editorPreview" style="margin-top:8px;flex:1;border:none;border-radius:10px;background:#fff"></iframe>
+            </div>
+          </div>
+        </div>
+        <div class="winAppView" id="winVideoEditor">
+          <div class="phoneMakerLayout editorLayout">
+            <div class="phoneMakerCard" style="display:flex;flex-direction:column;gap:8px">
+              <h4>Video Editor</h4>
+              <input type="file" accept="video/*" onchange="loadVideoFile('win', this)">
+              <video id="videoPreviewWin" controls style="width:100%;border-radius:10px;background:#000;max-height:180px"></video>
+              <label style="font-size:12px">Start <input id="videoStartWin" type="range" min="0" max="100" value="0" oninput="updateClipPoint('win')"></label>
+              <label style="font-size:12px">End <input id="videoEndWin" type="range" min="0" max="100" value="100" oninput="updateClipPoint('win')"></label>
+              <label style="font-size:12px">Brightness <input id="videoBrightWin" type="range" min="50" max="150" value="100" oninput="applyVideoFX('win')"></label>
+              <label style="font-size:12px">Contrast <input id="videoContrastWin" type="range" min="50" max="150" value="100" oninput="applyVideoFX('win')"></label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="wallBtn" onclick="playClip('win')">Play Clip</button>
+                <button class="wallBtn" onclick="pauseClip('win')">Pause</button>
+                <button class="wallBtn" onclick="downloadFrame('win')">Export Frame</button>
+              </div>
+            </div>
+            <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+              <h4>Status</h4>
+              <div id="videoStatusWin" class="robloxNowPlaying">Load a video to start editing.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="winStartMenu" id="winStartMenu">
+      <div class="winStartTitle">Pinned</div>
+      <div class="winStartGrid">
+        <button class="winStartItem" onclick="openWindowsApp('edge')">🌐<span>Edge</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('camera')">📷<span>Camera</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('settings')">⚙️<span>Settings</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('notes')">📝<span>Notes</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('maps')">🗺️<span>Maps</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('remoteDesktop')">🖥️<span>Remote</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('roblox')">◧<span>Roblox</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('gemini')">✦<span>Gemini</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('weather')">☀️<span>Weather</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('chromeOS')">◎<span>ChromeOS</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('baldi')">📗<span>Baldi</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('kidRacer3D')">🚗<span>KidRacer</span></button>
+        <button class="winStartItem" onclick="openWindowsApp('geometryDashLite')">◼️<span>GeoDash</span></button>
+      </div>
+    </div>
+    <div class="winTaskbar">
+      <div class="winTaskCenter">
+        <div class="icon windows" onclick="openWindowsApp('start')" style="cursor:pointer" title="Start">🪟</div>
+        <div class="winSearchPill" onclick="openWindowsApp('edge')" style="cursor:pointer" title="Search">🔎 Search</div>
+        <div class="icon edge" onclick="openWindowsApp('edge')" style="cursor:pointer" title="Edge">🌐</div>
+        <div class="icon winCamera" onclick="openWindowsApp('camera')" style="cursor:pointer" title="Camera">📷</div>
+        <div class="icon winYouTube" onclick="openWindowsApp('youtube')" style="cursor:pointer" title="YouTube">▶️</div>
+      </div>
+      <div class="winTray">
+        <span class="winQuick">📶 🔊 🔋</span>
+        <span>9:41<br><small>10/11/2026</small></span>
+      </div>
+    </div>
+  </div>
+  <div class="back" onclick="closeWindows11()" style="top:12px;right:16px;left:auto;">Close</div>
+</div>
+
+<!-- CHROME OS -->
+<div class="appWindow chromeOsWindow" id="chromeOS">
+  <div class="chromeOsTop">
+    <strong>Chrome OS</strong>
+    <span>Wi‑Fi · 100% · 9:41</span>
+  </div>
+  <div class="back" onclick="closeApp('chromeOS')" style="top:11px;left:10px">Back</div>
+  <div class="chromeOsDesk">
+    <div class="chromeOsApp"><div class="icon edge">🌐</div>Chrome</div>
+    <div class="chromeOsApp"><div class="icon notes">📝</div>Keep</div>
+    <div class="chromeOsApp"><div class="icon youtube">▶️</div>YouTube</div>
+    <div class="chromeOsApp"><div class="icon weatherIcon">☀️</div>Weather</div>
+    <div class="chromeOsApp"><div class="icon calc">🧮</div>Calculator</div>
+    <div class="chromeOsApp"><div class="icon vscode">💻</div>Editor</div>
+    <div class="chromeOsApp"><div class="icon safari">🗺️</div>Maps</div>
+    <div class="chromeOsApp"><div class="icon gemini">✦</div>Gemini</div>
+    <div class="chromeOsApp"><div class="icon phonemaker">🎨</div>Files</div>
+    <div class="chromeOsApp"><div class="icon windows">🪟</div>Windows App</div>
+  </div>
+  <div class="chromeShelf">
+    <div class="icon chromeos">◎</div>
+    <div class="icon edge">🌐</div>
+    <div class="icon youtube">▶️</div>
+    <div class="icon notes">📝</div>
+    <div class="icon vscode">💻</div>
+  </div>
+</div>
+
+<!-- SOLAR SYSTEM (3D) -->
+<div class="appWindow" id="solar">
+    <div class="header">Solar System</div>
+    <div class="back" onclick="closeSolarSystem()">Back</div>
+    <div style="display:flex;gap:8px;justify-content:center;padding:8px 0;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)">
+      <button onclick="zoomOut()" style="padding:6px 10px;border-radius:8px;border:none;background:#222;color:#fff;cursor:pointer">−</button>
+      <button onclick="zoomIn()" style="padding:6px 10px;border-radius:8px;border:none;background:#222;color:#fff;cursor:pointer">+</button>
+    </div>
+    <div id="solarContainer" style="flex:1;position:relative;background:#000"></div>
+</div>
+
+  <!-- MAPS -->
+  <div class="appWindow" id="maps">
+    <div class="header">Maps</div>
+    <div class="back" onclick="closeMap()">Back</div>
+    <div style="display:flex;gap:8px;padding:8px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)">
+      <input id="mapSearch" placeholder="Search place" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ccc">
+      <button onclick="doSearch()" style="padding:6px 10px;border-radius:8px;border:none;background:#222;color:#fff;cursor:pointer">Search</button>
+      <button onclick="geolocate()" style="padding:6px 10px;border-radius:8px;border:none;background:#2277ff;color:#fff;cursor:pointer">Locate</button>
+      <button id="satToggle" onclick="toggleSatellite()" style="padding:6px 10px;border-radius:8px;border:none;background:#444;color:#fff;cursor:pointer">Satellite</button>
+      <button id="googleToggle" onclick="toggleGoogle()" style="padding:6px 10px;border-radius:8px;border:none;background:#d44638;color:#fff;cursor:pointer">Google</button>
+    </div>
+    <div id="mapContainer" style="flex:1;position:relative;background:#ddd"></div>
+  </div>
+
+<!-- CALCULATOR -->
+<div class="appWindow" id="calc">
+  <div class="header">Calculator</div>
+  <div class="back" onclick="closeApp('calc')">Back</div>
+  <input id="calcDisplay" readonly style="margin:10px;padding:10px;font-size:24px">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:10px">
+    <button onclick="press('1')">1</button><button onclick="press('2')">2</button><button onclick="press('3')">3</button><button onclick="press('+')">+</button>
+    <button onclick="press('4')">4</button><button onclick="press('5')">5</button><button onclick="press('6')">6</button><button onclick="press('-')">-</button>
+    <button onclick="press('7')">7</button><button onclick="press('8')">8</button><button onclick="press('9')">9</button><button onclick="press('*')">*</button>
+    <button onclick="press('0')">0</button><button onclick="press('.')">.</button><button onclick="calculate()">=</button><button onclick="press('/')">/</button>
+  </div>
+</div>
+
+<!-- CLOCK -->
+<div class="appWindow" id="clockApp">
+  <div class="header">Clock</div>
+  <div class="back" onclick="closeApp('clockApp')">Back</div>
+  <div id="bigClock" style="font-size:60px;text-align:center;margin-top:120px"></div>
+</div>
+
+
+
+<!-- BALDI'S BASICS -->
+<div class="appWindow" id="baldiBasics">
+  <div class="header">Baldi's Basics</div>
+  <div class="back" onclick="closeBaldiBasics()">Back</div>
+  <div class="baldiWrap">
+    <div class="baldiHud">
+      <span id="baldiNotebooks">Notebooks: 0/7</span>
+      <span id="baldiTimer">Time Left: 90s</span>
+      <span id="baldiStatus">Find all notebooks!</span>
+    </div>
+    <div class="baldiBoard">
+      <div class="baldiScene">
+        <div class="baldiHallway" id="baldiHallway">
+          <div class="baldiWallL"></div>
+          <div class="baldiWallR"></div>
+          <div class="baldiCeil"></div>
+          <div class="baldiFloor" id="baldiFloor"></div>
+          <div id="baldiNotebookDot">📗</div>
+          <div id="baldiTeacher">🧑‍🏫</div>
+          <div id="baldiPlayer"></div>
+        </div>
+      </div>
+      <div class="baldiCard">
+        <h3 style="font-family:'Comic Sans MS','Chalkboard SE',cursive">You Can Think Pad™</h3>
+        <div class="baldiQuestion" id="baldiQuestion">2 + 2 = ?</div>
+        <input id="baldiAnswer" class="baldiInput" placeholder="Type your answer" />
+        <div class="baldiBtns">
+          <button onclick="submitBaldiAnswer()">Submit</button>
+          <button onclick="skipBaldiQuestion()">Skip (risky)</button>
+          <button class="baldiDanger" onclick="restartBaldiBasics()">Restart</button>
+        </div>
+      </div>
+    </div>
+    <div class="baldiFooter">Tip: Press <b>Enter</b> to submit. Wrong answers make Baldi rush toward you.</div>
+  </div>
+</div>
+
+<!-- CAR GAME -->
+<div class="appWindow" id="carGame">
+  <div class="header">Street Rush</div>
+  <div class="back" onclick="closeCarGame()">Back</div>
+  <div class="carHud">
+    <span id="carDistance">Distance: 0 m</span>
+    <span id="carSpeed">Speed: 120 km/h</span>
+    <span id="carBest">Best: 0 m</span>
+    <span id="carStatus">Drive!</span>
+  </div>
+  <div class="carStage"><canvas id="carCanvas" width="900" height="430"></canvas></div>
+  <div class="carControls">
+    <button onclick="moveCarLeft()">⬅ Left</button>
+    <button onclick="moveCarRight()">Right ➡</button>
+    <button class="boostBtn" onclick="activateNitro()">🔥 Nitro</button>
+    <button onclick="restartCarGame()">Restart</button>
+    <span style="color:#cbd5e1;font-size:12px">Controls: A/D or ←/→ + Space nitro • Swipe ←/→ on phone</span>
+  </div>
+</div>
+
+
+<!-- KID RACER 3D -->
+<div class="appWindow" id="kidRacer3D">
+  <div class="header">Kid Racer 3D</div>
+  <div class="back" onclick="closeKidRacer3D()">Back</div>
+  <div class="kidRacerHud">
+    <span id="kidRacerScore">Stars: 0</span>
+    <span id="kidRacerSpeed">Speed: 80</span>
+    <span id="kidRacerBest">Best: 0</span>
+    <span id="kidRacerState">Go!</span>
+  </div>
+  <div class="kidRacerStage"><canvas id="kidRacerCanvas" width="900" height="430"></canvas></div>
+  <div class="kidRacerControls">
+    <button onclick="kidRacerLeft()">⬅ Left</button>
+    <button onclick="kidRacerRight()">Right ➡</button>
+    <button class="kidNitro" onclick="kidRacerBoost()">✨ Turbo</button>
+    <button onclick="restartKidRacer3D()">Restart</button>
+    <span style="color:#cbd5e1;font-size:12px">Easy controls: A/D or ←/→, Space for turbo • Swipe ←/→ on phone</span>
+  </div>
+</div>
+
+
+<!-- GEOMETRY DASH LITE -->
+<div class="appWindow" id="geometryDashLite">
+  <div class="header">Geometry Dash Lite</div>
+  <div class="back" onclick="closeGeometryDashLite()">Back</div>
+  <div class="gdHud">
+    <span id="gdScore">Score: 0</span>
+    <span id="gdBest">Best: 0</span>
+    <span id="gdMode">Mode: Normal</span>
+    <span id="gdState">Tap jump!</span>
+  </div>
+  <div class="gdStage"><canvas id="gdCanvas" width="900" height="430"></canvas></div>
+  <div class="gdControls">
+    <button class="gdJump" onclick="gdJump()">⬆ Jump</button>
+    <button onclick="gdRestart()">Restart</button>
+    <button onclick="gdToggleMode()">Toggle Easy Mode</button>
+    <span style="color:#bfdbfe;font-size:12px">Space / Click / Tap / Swipe ↑ to jump</span>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div class="appWindow" id="camera">
+  <div class="header">Camera</div>
+  <div class="back" onclick="closeCamera()">Back</div>
+  <video id="cam" autoplay style="flex:1;background:black"></video>
+  <div class="cameraControls">
+    <button onclick="startCameraRecording()">⏺️ Record</button>
+    <button onclick="stopCameraRecording()">⏹️ Stop</button>
+    <button onclick="captureCameraFrame()">📸 Shot</button>
+    <span class="cameraStatus" id="cameraStatus">Ready</span>
+  </div>
+</div>
+
+<!-- MINECRAFT -->
+<div class="appWindow" id="minecraft">
+  <div class="header">Minecraft 3D</div>
+  <div class="back" onclick="closeApp('minecraft')">Back</div>
+  <div class="minecraftStage">
+    <div class="minecraftCube">
+      <div class="minecraftFace front minecraftGrass"></div>
+      <div class="minecraftFace back minecraftGrass"></div>
+      <div class="minecraftFace right minecraftStone"></div>
+      <div class="minecraftFace left minecraftStone"></div>
+      <div class="minecraftFace top minecraftGrass"></div>
+      <div class="minecraftFace bottom minecraftDirt"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROBLOX -->
+<div class="appWindow" id="roblox">
+  <div class="header">Roblox</div>
+  <div class="back" onclick="closeApp('roblox')">Back</div>
+  <div class="robloxLayout">
+    <div class="robloxPanel">
+      <h4>Choose 3D Character</h4>
+      <div class="robloxCharacters" id="robloxCharactersHome">
+        <div class="robloxCharacter active" onclick="selectRobloxCharacter(0,'home')"><div class="avatar3d"><div class="avatarBody"></div></div><small>Builder</small></div>
+        <div class="robloxCharacter" onclick="selectRobloxCharacter(1,'home')"><div class="avatar3d"><div class="avatarBody"></div></div><small>Runner</small></div>
+        <div class="robloxCharacter" onclick="selectRobloxCharacter(2,'home')"><div class="avatar3d"><div class="avatarBody"></div></div><small>Wizard</small></div>
+      </div>
+      <div class="robloxNowPlaying" id="robloxSelectedHome">Selected: Builder</div>
+    </div>
+    <div class="robloxPanel">
+      <h4>Games to Play</h4>
+      <div class="robloxGames">
+        <button class="robloxGameBtn" onclick="playRobloxGame('obby')">🏃 Speed Obby Challenge</button>
+        <button class="robloxGameBtn" onclick="playRobloxGame('tycoon')">🏭 Mega Factory Tycoon</button>
+        <button class="robloxGameBtn" onclick="playRobloxGame('sim')">🐾 Pet Simulator Galaxy</button>
+        <button class="robloxGameBtn" onclick="playRobloxGame('battle')">⚔️ Battle Arena Legends</button>
+      </div>
+      <div class="robloxNowPlaying" id="robloxGameStatusHome">No game launched yet.</div>
+    </div>
+  </div>
+</div>
+<!-- PHONE MAKER -->
+<div class="appWindow" id="phoneMaker">
+  <div class="header">Phone Maker</div>
+  <div class="back" onclick="closeApp('phoneMaker')">Back</div>
+  <div class="phoneMakerLayout">
+    <div class="phoneMakerCard">
+      <h4>Body Color</h4>
+      <div class="phoneMakerSwatches">
+        <button class="swatch" style="background:#050505" onclick="setPhoneColor('#050505')"></button>
+        <button class="swatch" style="background:#1f2940" onclick="setPhoneColor('#1f2940')"></button>
+        <button class="swatch" style="background:#3e1d52" onclick="setPhoneColor('#3e1d52')"></button>
+        <button class="swatch" style="background:#3f2b1f" onclick="setPhoneColor('#3f2b1f')"></button>
+      </div>
+      <h4 style="margin-top:10px">Wallpaper</h4>
+      <button class="wallBtn" onclick="setPhoneWallpaper('nebula')">Nebula</button>
+      <button class="wallBtn" onclick="setPhoneWallpaper('sunset')">Sunset</button>
+      <button class="wallBtn" onclick="setPhoneWallpaper('matrix')">Matrix</button>
+    </div>
+    <div class="phoneMakerCard">
+      <h4>Preview</h4>
+      <div class="phonePreviewMini" id="phonePreviewMiniHome">
+        <div class="phonePreviewMiniScreen" id="phonePreviewMiniScreenHome"></div>
+      </div>
+      <div class="robloxNowPlaying" id="phoneMakerStatus">Ready to design.</div>
+      <button class="designApply" onclick="applyPhoneDesign()">Apply & Use Phone</button>
+    </div>
+  </div>
+</div>
+
+<!-- GEMINI -->
+<div class="appWindow" id="gemini">
+  <div class="header">AI Assistant</div>
+  <div class="back" onclick="closeApp('gemini')">Back</div>
+  <div class="phoneMakerLayout">
+    <div class="phoneMakerCard">
+      <h4>Built-in AI Assistant</h4>
+      <p style="font-size:13px;opacity:.85;line-height:1.4">This AI is built into the website. Ask anything and get an instant reply right here.</p>
+      <textarea id="geminiPromptHome" style="margin-top:8px;width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.15);padding:10px;background:#111827;color:#fff" placeholder="Ask the AI anything..."></textarea>
+      <button class="designApply" onclick="askBuiltInAI('home')">Ask AI</button>
+      <button class="wallBtn" onclick="clearAI('home')">Clear Chat</button>
+    </div>
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+      <h4>AI Reply</h4>
+      <div id="geminiStatusHome" class="robloxNowPlaying">Ready.</div>
+      <div id="geminiFrameHome" style="margin-top:8px;flex:1;border:none;border-radius:10px;background:#0f172a;color:#dbeafe;padding:12px;line-height:1.45;overflow:auto">Hi! I’m your built-in AI assistant. Try asking: “How can I make this phone app cooler?”</div>
+    </div>
+  </div>
+</div>
+
+<!-- WEATHER -->
+<div class="appWindow" id="weatherApp">
+  <div class="header">Weather</div>
+  <div class="back" onclick="closeApp('weatherApp')">Back</div>
+  <div class="phoneMakerLayout">
+    <div class="phoneMakerCard">
+      <h4>Weather Finder</h4>
+      <input id="weatherCityHome" placeholder="Enter city" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#111827;color:#fff">
+      <button class="designApply" onclick="updateWeather('home')">Check Weather</button>
+    </div>
+    <div class="phoneMakerCard">
+      <h4>Forecast</h4>
+      <div id="weatherOutputHome" class="robloxNowPlaying">Type a city to see weather.</div>
+    </div>
+  </div>
+</div>
+
+<!-- VS CODE -->
+<div class="appWindow" id="vscodeApp">
+  <div class="header">VS Code Lite</div>
+  <div class="back" onclick="closeApp('vscodeApp')">Back</div>
+  <div class="phoneMakerLayout editorLayout">
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+      <h4>Editor</h4>
+      <textarea id="vscodeEditorHome" class="editorText" style="margin-top:8px;flex:1;min-height:170px;border-radius:10px;border:1px solid rgba(255,255,255,.15);padding:10px;background:#0f172a;color:#dbeafe">&lt;h1&gt;Hello from VS Code Lite&lt;/h1&gt;\n&lt;p&gt;Edit and preview your HTML.&lt;/p&gt;</textarea>
+      <button class="designApply" onclick="runVSCode('home')">Run Preview</button>
+    </div>
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+      <h4>Preview</h4>
+      <iframe id="vscodePreviewHome" class="editorPreview" style="margin-top:8px;flex:1;border:none;border-radius:10px;background:#fff"></iframe>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- TRANSLATOR -->
+<div class="appWindow" id="translatorApp">
+  <div class="header">Translator</div>
+  <div class="back" onclick="closeApp('translatorApp')">Back</div>
+  <div class="translatorWrap">
+    <textarea id="translatorInput" rows="4" placeholder="Type text to translate"></textarea>
+    <div style="display:flex;gap:8px">
+      <select id="translatorFrom"><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option><option value="de">German</option><option value="pt">Portuguese</option><option value="it">Italian</option></select>
+      <select id="translatorTo"><option value="es">Spanish</option><option value="en">English</option><option value="fr">French</option><option value="de">German</option><option value="pt">Portuguese</option><option value="it">Italian</option></select>
+    </div>
+    <button onclick="translateNow()">Translate</button>
+    <div id="translatorOutput" style="min-height:90px;border:1px solid #bbf7d0;border-radius:10px;padding:10px;background:#fff">Translation appears here.</div>
+  </div>
+</div>
+
+<!-- VIDEO HUB -->
+<div class="appWindow" id="videoHubApp">
+  <div class="header">Video Hub</div>
+  <div class="back" onclick="closeApp('videoHubApp')">Back</div>
+  <div class="videoHubWrap">
+    <div class="videoPublishCard">
+      <h4>Publish Video</h4>
+      <input id="videoTitleInput" placeholder="Video title">
+      <input id="videoUrlInput" placeholder="Video URL (YouTube or direct .mp4/.webm)">
+      <textarea id="videoDescInput" rows="3" placeholder="Description"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button onclick="publishVideoPost()">Publish</button>
+        <button onclick="copyVideoShareLink()">Copy Share Link</button>
+      </div>
+      <div id="videoHubStatus" style="margin-top:8px;font-size:12px;color:#334155">Published videos stay after reload on this browser. Share link lets others import and see the post.</div>
+    </div>
+    <div class="videoFeedCard">
+      <h4>Video Feed</h4>
+      <div id="videoFeedList">No videos yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO EDITOR -->
+<div class="appWindow" id="videoEditorApp">
+  <div class="header">Video Editor</div>
+  <div class="back" onclick="closeApp('videoEditorApp')">Back</div>
+  <div class="phoneMakerLayout editorLayout">
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column;gap:8px">
+      <h4>Video Editor</h4>
+      <input type="file" accept="video/*" onchange="loadVideoFile('home', this)">
+      <video id="videoPreviewHome" controls style="width:100%;border-radius:10px;background:#000;max-height:180px"></video>
+      <label style="font-size:12px">Start <input id="videoStartHome" type="range" min="0" max="100" value="0" oninput="updateClipPoint('home')"></label>
+      <label style="font-size:12px">End <input id="videoEndHome" type="range" min="0" max="100" value="100" oninput="updateClipPoint('home')"></label>
+      <label style="font-size:12px">Brightness <input id="videoBrightHome" type="range" min="50" max="150" value="100" oninput="applyVideoFX('home')"></label>
+      <label style="font-size:12px">Contrast <input id="videoContrastHome" type="range" min="50" max="150" value="100" oninput="applyVideoFX('home')"></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="wallBtn" onclick="playClip('home')">Play Clip</button>
+        <button class="wallBtn" onclick="pauseClip('home')">Pause</button>
+        <button class="wallBtn" onclick="downloadFrame('home')">Export Frame</button>
+      </div>
+    </div>
+    <div class="phoneMakerCard" style="display:flex;flex-direction:column">
+      <h4>Status</h4>
+      <div id="videoStatusHome" class="robloxNowPlaying">Load a video to start editing.</div>
+    </div>
+  </div>
+</div>
+
+<div id="homebar"></div>
+
+</div></div>
+
+<script>
+const lockScreen=document.getElementById("lock");
+const homeScreen=document.getElementById("home");
+const clockDisplay=document.getElementById("clock");
+const timeDisplay=document.getElementById("time");
+const dateDisplay=document.getElementById("date");
+const bigClockDisplay=document.getElementById("bigClock");
+const calcDisplay=document.getElementById("calcDisplay");
+const camera=document.getElementById("camera");
+const cam=document.getElementById("cam");
+const safari=document.getElementById("safari");
+const safariInput=document.getElementById("safariInput");
+const safariFrame=document.getElementById("safariFrame");
+const windows11=document.getElementById("windows11");
+const bootOverlay=document.getElementById("bootOverlay");
+const winAppPane=document.getElementById("winAppPane");
+const winAppTitle=document.getElementById("winAppTitle");
+const winStartMenu=document.getElementById("winStartMenu");
+const winEdge=document.getElementById("winEdge");
+const edgeInput=document.getElementById("edgeInput");
+const edgeFrame=document.getElementById("edgeFrame");
+const winCamera=document.getElementById("winCamera");
+const winCam=document.getElementById("winCam");
+const winYouTube=document.getElementById("winYouTube");
+const winTube=document.getElementById("winTube");
+const winSettings=document.getElementById("winSettings");
+const winNotes=document.getElementById("winNotes");
+const winMaps=document.getElementById("winMaps");
+const winRemoteDesktop=document.getElementById("winRemoteDesktop");
+const winMinecraft=document.getElementById("winMinecraft");
+const winRoblox=document.getElementById("winRoblox");
+const winPhoneMaker=document.getElementById("winPhoneMaker");
+const winGemini=document.getElementById("winGemini");
+const winWeather=document.getElementById("winWeather");
+const winVSCode=document.getElementById("winVSCode");
+const winVideoEditor=document.getElementById("winVideoEditor");
+const winBaldi=document.getElementById("baldiBasics");
+const phoneNumberInput=document.getElementById("phoneNumberInput");
+const callStatus=document.getElementById("callStatus");
+const chatTitle=document.getElementById("chatTitle");
+const chatLog=document.getElementById("chatLog");
+const chatInput=document.getElementById("chatInput");
+const translatorInput=document.getElementById("translatorInput");
+const translatorFrom=document.getElementById("translatorFrom");
+const translatorTo=document.getElementById("translatorTo");
+const translatorOutput=document.getElementById("translatorOutput");
+const videoTitleInput=document.getElementById("videoTitleInput");
+const videoUrlInput=document.getElementById("videoUrlInput");
+const videoDescInput=document.getElementById("videoDescInput");
+const videoHubStatus=document.getElementById("videoHubStatus");
+const videoFeedList=document.getElementById("videoFeedList");
+const phoneElement=document.getElementById("phone");
+const screenElement=document.getElementById("screen");
+const noteArea = document.getElementById("noteArea");
+const carCanvas = document.getElementById("carCanvas");
+const carDistanceLabel = document.getElementById("carDistance");
+const carSpeedLabel = document.getElementById("carSpeed");
+const carBestLabel = document.getElementById("carBest");
+const carStatusLabel = document.getElementById("carStatus");
+const kidRacerCanvas = document.getElementById("kidRacerCanvas");
+const kidRacerScoreLabel = document.getElementById("kidRacerScore");
+const kidRacerSpeedLabel = document.getElementById("kidRacerSpeed");
+const kidRacerBestLabel = document.getElementById("kidRacerBest");
+const kidRacerStateLabel = document.getElementById("kidRacerState");
+const gdCanvas = document.getElementById("gdCanvas");
+const gdScoreLabel = document.getElementById("gdScore");
+const gdBestLabel = document.getElementById("gdBest");
+const gdModeLabel = document.getElementById("gdMode");
+const gdStateLabel = document.getElementById("gdState");
+const baldiQuestionLabel = document.getElementById("baldiQuestion");
+const baldiAnswerInput = document.getElementById("baldiAnswer");
+const baldiNotebooksLabel = document.getElementById("baldiNotebooks");
+const baldiTimerLabel = document.getElementById("baldiTimer");
+const baldiStatusLabel = document.getElementById("baldiStatus");
+const baldiPlayer = document.getElementById("baldiPlayer");
+const baldiTeacher = document.getElementById("baldiTeacher");
+const baldiHallway = document.getElementById("baldiHallway");
+const baldiFloor = document.getElementById("baldiFloor");
+const baldiNotebookDot = document.getElementById("baldiNotebookDot");
+const deviceProfiles = {
+  iphone:{width:392,height:790,radius:52},
+  ipad:{width:760,height:980,radius:42},
+  computer:{width:1100,height:680,radius:26}
+};
+
+function setDeviceProfile(type='iphone'){
+  const p = deviceProfiles[type] || deviceProfiles.iphone;
+  phoneElement.style.width = p.width + 'px';
+  phoneElement.style.height = p.height + 'px';
+  phoneElement.style.borderRadius = p.radius + 'px';
+  if(type !== 'computer') phoneElement.classList.remove('movieMode');
+}
+
+function setMovieScreenMode(on=true){
+  if(on){
+    setDeviceProfile('computer');
+    phoneElement.classList.add('movieMode');
+    const sel=document.getElementById('deviceSelect');
+    if(sel) sel.value='computer';
+  } else {
+    phoneElement.classList.remove('movieMode');
+    setDeviceProfile(document.getElementById('deviceSelect')?.value || 'iphone');
+  }
+}
+
+// Solar system state
+let solarInitialized = false;
+let solarRenderer = null;
+let solarScene = null;
+let solarCamera = null;
+let solarAnimationId = null;
+let solarContainer = null;
+let cameraDistance = 180;
+let solarWheelHandler = null;
+
+function unlock(){
+  lockScreen.style.display="none";
+  homeScreen.style.display="block";
+}
+function openApp(id){document.getElementById(id).style.display="flex";}
+function closeApp(id){document.getElementById(id).style.display="none";}
+function openWindows11(){
+  windows11.style.display="flex";
+  if(winStartMenu) winStartMenu.style.display="none";
+  bootOverlay.style.display="flex";
+  setTimeout(()=>{ bootOverlay.style.display="none"; },1300);
+}
+function closeWindows11(){
+  closeWinApp();
+  if(winStartMenu) winStartMenu.style.display="none";
+  windows11.style.display="none";
+}
+function openWindowsApp(app){
+  const views = [winEdge, winCamera, winYouTube, winSettings, winNotes, winMaps, winRemoteDesktop, winMinecraft, winRoblox, winPhoneMaker, winGemini, winWeather, winVSCode, winVideoEditor, winBaldi];
+  views.forEach(v=>v.classList.remove("active"));
+  winAppPane.style.display="flex";
+  if(winStartMenu) winStartMenu.style.display="none";
+  switch(app){
+    case 'edge':
+      winAppTitle.innerText = 'Edge';
+      winEdge.classList.add("active");
+      setTimeout(()=>edgeInput.focus(),50);
+      return;
+    case 'camera':
+      winAppTitle.innerText = 'Camera';
+      winCamera.classList.add("active");
+      startWinCamera();
+      return;
+    case 'youtube':
+      winAppTitle.innerText = 'YouTube';
+      winYouTube.classList.add("active");
+      winTube.src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0";
+      return;
+    case 'settings':
+      winAppTitle.innerText = 'Settings';
+      winSettings.classList.add("active");
+      return;
+    case 'notes':
+      winAppTitle.innerText = 'Notes';
+      winNotes.classList.add("active");
+      return;
+    case 'maps':
+      winAppTitle.innerText = 'Maps';
+      winMaps.classList.add("active");
+      return;
+    case 'remoteDesktop':
+      winAppTitle.innerText = 'Remote Desktop';
+      winRemoteDesktop.classList.add("active");
+      const rdpInput = document.getElementById('rdpTarget');
+      if(rdpInput) setTimeout(()=>rdpInput.focus(), 60);
+      return;
+    case 'minecraft':
+      winAppTitle.innerText = 'Minecraft 3D';
+      winMinecraft.classList.add("active");
+      return;
+    case 'roblox':
+      winAppTitle.innerText = 'Roblox';
+      winRoblox.classList.add("active");
+      return;
+    case 'phoneMaker':
+      winAppTitle.innerText = 'Phone Maker';
+      winPhoneMaker.classList.add("active");
+      syncPhoneMakerPreviews();
+      return;
+    case 'gemini':
+      winAppTitle.innerText = 'Gemini';
+      winGemini.classList.add("active");
+      return;
+    case 'weather':
+      winAppTitle.innerText = 'Weather';
+      winWeather.classList.add("active");
+      return;
+    case 'vscode':
+      winAppTitle.innerText = 'VS Code Lite';
+      winVSCode.classList.add("active");
+      return;
+    case 'videoEditor':
+      winAppTitle.innerText = 'Video Editor';
+      winVideoEditor.classList.add("active");
+      return;
+    case 'baldi':
+      closeWindows11();
+      openBaldiBasics();
+      return;
+    case 'kidRacer3D':
+      closeWindows11();
+      openKidRacer3D();
+      return;
+    case 'geometryDashLite':
+      closeWindows11();
+      openGeometryDashLite();
+      return;
+    case 'phone':
+      closeWindows11();
+      openApp('phoneApp');
+      return;
+    case 'messenger':
+      closeWindows11();
+      openApp('messengerApp');
+      return;
+    case 'chromeOS':
+      closeWindows11();
+      setDeviceProfile('computer');
+      const sel = document.getElementById('deviceSelect');
+      if(sel) sel.value='computer';
+      openApp('chromeOS');
+      return;
+    case 'start':
+      winAppPane.style.display="none";
+      if(winStartMenu){
+        winStartMenu.style.display = winStartMenu.style.display === 'block' ? 'none' : 'block';
+      }
+      return;
+    default:
+      winAppPane.style.display="none";
+      if(winStartMenu) winStartMenu.style.display='none';
+  }
+}
+function closeWinApp(){
+  winAppPane.style.display="none";
+  stopWinCamera();
+  winTube.src = "";
+}
+
+
+windows11.addEventListener('click',e=>{
+  if(!winStartMenu || winStartMenu.style.display!=='block') return;
+  const target=e.target;
+  if(target.closest('#winStartMenu') || target.closest("[title='Start']")) return;
+  winStartMenu.style.display='none';
+});
+function connectRemoteDesktop(){
+  const target = (document.getElementById('rdpTarget')?.value || 'Computer').trim();
+  const status = document.getElementById('rdpStatus');
+  if(status) status.innerText = `Connecting to ${target}...`;
+  setTimeout(()=>{
+    if(status) status.innerText = `Connected to ${target}. Opening computer session...`;
+    setDeviceProfile('computer');
+    const sel = document.getElementById('deviceSelect');
+    if(sel) sel.value = 'computer';
+    closeWindows11();
+    unlock();
+  }, 700);
+}
+
+function searchEdge(){
+  let v=edgeInput.value.trim();
+  if(!v) return;
+  if(!v.includes(".")) edgeFrame.src="https://duckduckgo.com/html/?q="+encodeURIComponent(v);
+  else{
+    if(!v.startsWith("http")) v="https://"+v;
+    edgeFrame.src=v;
+  }
+}
+let winStream = null;
+function startWinCamera(){
+  if(winStream) return;
+  navigator.mediaDevices.getUserMedia({video:true}).then(s=>{
+    winStream=s;
+    winCam.srcObject=s;
+  }).catch(e=>console.error('Windows camera error', e));
+}
+function stopWinCamera(){
+  if(winStream){
+    winStream.getTracks().forEach(t=>t.stop());
+    winStream = null;
+  }
+  if(winCam) winCam.srcObject = null;
+}
+
+
+const phoneDesign = { color:'#050505', wallpaper:'nebula' };
+function wallpaperByName(name){
+  if(name==='sunset') return 'linear-gradient(145deg,#3f1d4e,#ff6f61 55%,#ffbf69)';
+  if(name==='matrix') return 'linear-gradient(160deg,#02120a,#063b1f 55%,#0b2015)';
+  return 'linear-gradient(140deg,#0b0f2a,#1f0f2b 55%,#0b1b2a)';
+}
+function setPhoneColor(color){
+  phoneDesign.color = color;
+  syncPhoneMakerPreviews();
+  setDesignStatus('Body color selected.');
+}
+function setPhoneWallpaper(name){
+  phoneDesign.wallpaper = name;
+  syncPhoneMakerPreviews();
+  setDesignStatus('Wallpaper selected.');
+}
+function setDesignStatus(text){
+  const a=document.getElementById('phoneMakerStatus');
+  const b=document.getElementById('winPhoneMakerStatus');
+  if(a) a.innerText=text;
+  if(b) b.innerText=text;
+}
+function syncPhoneMakerPreviews(){
+  const p1=document.getElementById('phonePreviewMini');
+  const p2=document.getElementById('phonePreviewMiniHome');
+  const s1=document.getElementById('phonePreviewMiniScreen');
+  const s2=document.getElementById('phonePreviewMiniScreenHome');
+  [p1,p2].forEach(p=>{ if(p) p.style.background = phoneDesign.color; });
+  const wall = wallpaperByName(phoneDesign.wallpaper);
+  [s1,s2].forEach(s=>{ if(s) s.style.background = wall; });
+}
+function applyPhoneDesign(){
+  phoneElement.style.background = `linear-gradient(160deg,${phoneDesign.color},#050505)`;
+  screenElement.style.background = wallpaperByName(phoneDesign.wallpaper);
+  setDesignStatus('Design applied! Now use your custom phone.');
+}
+
+const robloxCharacters = ["Builder", "Runner", "Wizard"];
+function selectRobloxCharacter(index, scope='win'){
+  const root = scope === 'home' ? document.getElementById('robloxCharactersHome') : document.getElementById('robloxCharacters');
+  const selected = scope === 'home' ? document.getElementById('robloxSelectedHome') : document.getElementById('robloxSelected');
+  if(!root || !selected) return;
+  [...root.querySelectorAll('.robloxCharacter')].forEach((el,i)=>{
+    if(i===index) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+  selected.innerText = `Selected: ${robloxCharacters[index]||robloxCharacters[0]}`;
+}
+
+function playRobloxGame(game){
+  const urls = {
+    obby:'https://www.roblox.com/discover/',
+    tycoon:'https://www.roblox.com/discover/',
+    sim:'https://www.roblox.com/discover/',
+    battle:'https://www.roblox.com/discover/'
+  };
+  const labels = {
+    obby:'Launching Speed Obby Challenge...',
+    tycoon:'Launching Mega Factory Tycoon...',
+    sim:'Launching Pet Simulator Galaxy...',
+    battle:'Launching Battle Arena Legends...'
+  };
+  const winStatus = document.getElementById('robloxGameStatus');
+  const homeStatus = document.getElementById('robloxGameStatusHome');
+  if(winStatus) winStatus.innerText = labels[game] || 'Launching game...';
+  if(homeStatus) homeStatus.innerText = labels[game] || 'Launching game...';
+  window.open(urls[game] || urls.obby, '_blank');
+}
+
+/* TIME */
+setInterval(()=>{
+  let d=new Date();
+  let t=d.getHours()+":"+d.getMinutes().toString().padStart(2,"0");
+  clockDisplay.innerText=timeDisplay.innerText=t;
+  if(bigClockDisplay) bigClockDisplay.innerText=t;
+  const day=d.toLocaleDateString("en-US",{weekday:"long"});
+  const month=d.toLocaleDateString("en-US",{month:"short"});
+  const dateNum=d.getDate();
+  dateDisplay.innerText=`${day} • ${month} ${dateNum}`;
+},1000);
+
+/* SAFARI – GUARANTEED ENTER */
+function openSafariApp(){
+  safari.style.display="flex";
+  setTimeout(()=>safariInput.focus(),50);
+}
+function closeSafari(){
+  safari.style.display="none";
+  safariFrame.src="about:blank";
+}
+document.addEventListener("keydown",e=>{
+  if(safari.style.display!=="flex")return;
+  if(document.activeElement!==safariInput)return;
+  if(e.key!=="Enter")return;
+  let v=safariInput.value.trim();
+  if(!v)return;
+  if(!v.includes(".")) safariFrame.src="https://duckduckgo.com/html/?q="+encodeURIComponent(v);
+  else{
+    if(!v.startsWith("http")) v="https://"+v;
+    if(v.includes("google")||v.includes("youtube"))
+      window.open(v,"_blank");
+    else safariFrame.src=v;
+  }
+});
+document.addEventListener("keydown",e=>{
+  if(winAppPane.style.display!=="flex")return;
+  if(document.activeElement!==edgeInput)return;
+  if(e.key!=="Enter")return;
+  searchEdge();
+});
+
+/* YOUTUBE */
+function openYouTube(){
+  window.open("https://m.youtube.com","_blank");
+}
+/* Face ID (demo) */
+let faceStream=null;
+let faceVideo=document.getElementById("faceVideo");
+let faceOverlay=document.getElementById("faceOverlay");
+let faceStatus=document.getElementById("faceStatus");
+let faceDetector=null;
+let faceLoopId=null;
+let faceSuccessCount=0;
+
+async function startFaceID(){
+  faceStatus.innerText='Initializing camera...';
+  try{
+    faceStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    faceVideo.srcObject = faceStream;
+    faceOverlay.style.display = 'flex';
+    faceStatus.innerText='Looking for a face — please center your face in view';
+    if('FaceDetector' in window){
+      faceDetector = new FaceDetector({fastMode:true, maxDetectedFaces:1});
+      faceSuccessCount = 0;
+      faceLoop();
+    } else {
+      faceStatus.innerText='FaceDetector API not available — click Verify to simulate verification';
+      // Provide a fallback "simulate" flow: after 2s, accept if user keeps camera open
+      setTimeout(()=>{
+        faceStatus.innerText='No native face detector; unlocking in 2s if camera is still active...';
+        setTimeout(()=>{
+          if(faceStream) { faceStatus.innerText='Verified (simulated)'; stopFaceID(); unlock(); }
+        },2000);
+      },500);
+    }
+  }catch(err){
+    faceStatus.innerText='Camera permission denied or error.';
+    console.error('FaceID start error',err);
+  }
+}
+
+async function faceLoop(){
+  if(!faceDetector || !faceVideo) return;
+  try{
+    const faces = await faceDetector.detect(faceVideo);
+    if(faces && faces.length>0){
+      faceSuccessCount++;
+      faceStatus.innerText = `Face detected (${faceSuccessCount}/3)`;
+      if(faceSuccessCount>=3){
+        faceStatus.innerText='Face verified';
+        stopFaceID();
+        unlock();
+        return;
+      }
+    } else {
+      faceSuccessCount = 0;
+      faceStatus.innerText = 'No face detected — please hold still';
+    }
+  }catch(e){
+    console.error('Face detection error',e);
+    faceStatus.innerText='Detection error — falling back';
+  }
+  faceLoopId = requestAnimationFrame(faceLoop);
+}
+
+function stopFaceID(){
+  if(faceLoopId) cancelAnimationFrame(faceLoopId);
+  faceLoopId = null;
+  if(faceStream){
+    faceStream.getTracks().forEach(t=>t.stop());
+    faceStream = null;
+  }
+  if(faceVideo) faceVideo.srcObject = null;
+  if(faceOverlay) faceOverlay.style.display = 'none';
+  faceStatus.innerText='';
+}
+
+/* CAMERA */
+let stream;
+let cameraRecorder = null;
+let cameraChunks = [];
+const cameraStatus = document.getElementById('cameraStatus');
+const pressedKeys = new Set();
+function openCamera(){
+  camera.style.display="flex";
+  navigator.mediaDevices.getUserMedia({video:true}).then(s=>{
+    stream=s;cam.srcObject=s;
+    if(cameraStatus) cameraStatus.innerText = 'Live';
+  }).catch(e=>{
+    console.error('Camera error', e);
+    if(cameraStatus) cameraStatus.innerText = 'Camera unavailable';
+  });
+}
+function closeCamera(){
+  stopCameraRecording(false);
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  stream = null;
+  cam.srcObject = null;
+  if(cameraStatus) cameraStatus.innerText = 'Ready';
+  camera.style.display="none";
+}
+
+function startCameraRecording(){
+  if(!stream){
+    if(cameraStatus) cameraStatus.innerText = 'Open camera first';
+    return;
+  }
+  if(cameraRecorder && cameraRecorder.state === 'recording') return;
+  cameraChunks = [];
+  cameraRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+  cameraRecorder.ondataavailable = e=>{ if(e.data && e.data.size) cameraChunks.push(e.data); };
+  cameraRecorder.onstop = ()=>{
+    if(!cameraChunks.length) return;
+    const blob = new Blob(cameraChunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `camera-recording-${Date.now()}.webm`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  cameraRecorder.start();
+  if(cameraStatus) cameraStatus.innerText = 'Recording...';
+}
+
+function stopCameraRecording(updateStatus = true){
+  if(cameraRecorder && cameraRecorder.state === 'recording'){
+    cameraRecorder.stop();
+  }
+  if(updateStatus && cameraStatus) cameraStatus.innerText = 'Saved recording';
+}
+
+function captureCameraFrame(){
+  if(!cam.videoWidth || !cam.videoHeight){
+    if(cameraStatus) cameraStatus.innerText = 'No frame available';
+    return;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = cam.videoWidth;
+  canvas.height = cam.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(cam, 0, 0, canvas.width, canvas.height);
+  canvas.toBlob(blob=>{
+    if(!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `camera-shot-${Date.now()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+  if(cameraStatus) cameraStatus.innerText = 'Saved screenshot';
+}
+
+function loadHtml2Canvas(){
+  if(window.html2canvas) return Promise.resolve(window.html2canvas);
+  return new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = ()=>resolve(window.html2canvas);
+    script.onerror = ()=>reject(new Error('Failed to load html2canvas'));
+    document.head.appendChild(script);
+  });
+}
+
+async function capturePhoneScreenshot(){
+  const phone = document.getElementById('phone');
+  if(!phone) return;
+  try{
+    const html2canvas = await loadHtml2Canvas();
+    const canvas = await html2canvas(phone, { backgroundColor: null, useCORS: true });
+    canvas.toBlob(blob=>{
+      if(!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `phone-screenshot-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+    if(cameraStatus && camera.style.display === 'flex') cameraStatus.innerText = 'Phone screenshot saved';
+  }catch(e){
+    console.error(e);
+    if(cameraStatus && camera.style.display === 'flex') cameraStatus.innerText = 'Screenshot failed';
+  }
+}
+
+document.addEventListener('keydown', e=>{
+  pressedKeys.add(e.key.toLowerCase());
+  if(pressedKeys.has('s') && pressedKeys.has('k')){
+    capturePhoneScreenshot();
+  }
+});
+document.addEventListener('keyup', e=>{
+  pressedKeys.delete(e.key.toLowerCase());
+});
+window.addEventListener('blur', ()=>pressedKeys.clear());
+
+/* SOLAR: load three.js dynamically and create a simple 3D solar system */
+function loadThree(callback){
+  if(window.THREE) return callback();
+  const s=document.createElement('script');
+  s.src='https://unpkg.com/three@0.152.2/build/three.min.js';
+  s.onload = callback;
+  s.onerror = ()=>{ console.error('Failed to load three.js'); };
+  document.head.appendChild(s);
+}
+
+function openSolarSystem(){
+  const solarEl=document.getElementById('solar');
+  solarEl.style.display='flex';
+  if(!solarInitialized){
+    solarContainer = document.getElementById('solarContainer');
+    loadThree(()=>{
+      try{ initSolar(); solarInitialized=true; }
+      catch(e){ console.error('Solar init error',e); }
+      // ensure renderer matches container after layout
+      setTimeout(()=>{
+        if(solarRenderer && solarContainer){
+          solarRenderer.setSize(solarContainer.clientWidth, solarContainer.clientHeight);
+          if(solarCamera){ solarCamera.aspect = solarContainer.clientWidth/solarContainer.clientHeight; solarCamera.updateProjectionMatrix(); }
+        }
+      },60);
+    });
+  }
+}
+
+function closeSolarSystem(){
+  const solarEl=document.getElementById('solar');
+  solarEl.style.display='none';
+  // stop animation and dispose
+  if(solarAnimationId) cancelAnimationFrame(solarAnimationId);
+  solarAnimationId = null;
+  if(solarRenderer){
+    solarRenderer.dispose();
+    solarRenderer.domElement.remove();
+    solarRenderer = null;
+  }
+  solarScene = null; solarCamera = null; solarInitialized = false;
+}
+
+function initSolar(){
+  const THREE = window.THREE;
+  solarScene = new THREE.Scene();
+  solarCamera = new THREE.PerspectiveCamera(45, solarContainer.clientWidth/solarContainer.clientHeight, 0.1, 2000);
+  cameraDistance = 180;
+  solarCamera.position.set(0, 50, cameraDistance);
+  solarRenderer = new THREE.WebGLRenderer({antialias:true});
+  solarRenderer.setPixelRatio(window.devicePixelRatio || 1);
+  solarRenderer.setSize(solarContainer.clientWidth, solarContainer.clientHeight);
+  solarContainer.appendChild(solarRenderer.domElement);
+
+  const ambient = new THREE.AmbientLight(0x333333);
+  solarScene.add(ambient);
+
+  // Sun
+  const sunGeo = new THREE.SphereGeometry(16, 32, 32);
+  const sunMat = new THREE.MeshBasicMaterial({color:0xffcc33});
+  const sun = new THREE.Mesh(sunGeo, sunMat);
+  solarScene.add(sun);
+  const sunLight = new THREE.PointLight(0xffffff, 2, 1000);
+  sunLight.position.set(0,0,0);
+  solarScene.add(sunLight);
+
+  // Planets data: [distance, size, color, speed]
+  const planets = [
+    [28, 3.5, 0x888888, 0.02],
+    [40, 4.8, 0xffcc99, 0.015],
+    [56, 5.5, 0x4db8ff, 0.01],
+    [78, 9.0, 0xffaa33, 0.007],
+    [110, 7.0, 0x996633, 0.005]
+  ];
+
+  const planetObjects = [];
+  planets.forEach(p=>{
+    const geo = new THREE.SphereGeometry(p[1], 24, 24);
+    const mat = new THREE.MeshPhongMaterial({color:p[2]});
+    const m = new THREE.Mesh(geo, mat);
+    m.userData = {dist:p[0], speed:p[3], angle: Math.random()*Math.PI*2};
+    solarScene.add(m);
+    planetObjects.push(m);
+    // orbit line
+    const orbitGeo = new THREE.RingGeometry(p[0]-0.05, p[0]+0.05, 64);
+    const orbitMat = new THREE.MeshBasicMaterial({color:0x444444, side: THREE.DoubleSide});
+    const orbit = new THREE.Mesh(orbitGeo, orbitMat);
+    orbit.rotation.x = Math.PI/2;
+    solarScene.add(orbit);
+  });
+
+  function onResize(){
+    if(!solarCamera || !solarRenderer) return;
+    solarCamera.aspect = solarContainer.clientWidth/solarContainer.clientHeight;
+    solarCamera.updateProjectionMatrix();
+    solarRenderer.setSize(solarContainer.clientWidth, solarContainer.clientHeight);
+  }
+  window.addEventListener('resize', onResize);
+
+  // wheel zoom handler
+  solarWheelHandler = function(e){
+    e.preventDefault();
+    const delta = Math.sign(e.deltaY) * 15;
+    setCameraDistance(cameraDistance + delta);
+  };
+  solarContainer.addEventListener('wheel', solarWheelHandler, {passive:false});
+
+  function animate(){
+    solarAnimationId = requestAnimationFrame(animate);
+    planetObjects.forEach(p=>{
+      p.userData.angle += p.userData.speed;
+      p.position.x = Math.cos(p.userData.angle) * p.userData.dist;
+      p.position.z = Math.sin(p.userData.angle) * p.userData.dist;
+      p.rotation.y += 0.01;
+    });
+    sun.rotation.y += 0.002;
+    solarRenderer.render(solarScene, solarCamera);
+  }
+  animate();
+}
+
+function setCameraDistance(d){
+  const minD = 40, maxD = 1000;
+  cameraDistance = Math.max(minD, Math.min(maxD, d));
+  if(solarCamera) solarCamera.position.z = cameraDistance;
+}
+
+function zoomIn(){ setCameraDistance(cameraDistance - 30); }
+function zoomOut(){ setCameraDistance(cameraDistance + 30); }
+
+// detect secret phrase in notes
+if(noteArea){
+  noteArea.addEventListener('input', e=>{
+    const v = (e.target.value||'').trim().toLowerCase();
+    if(v === 'secret minecraft'){
+      openSolarSystem();
+    }
+    if(v === 'secret'){
+      setMovieScreenMode(true);
+    }
+    if(v === 'secret off'){
+      setMovieScreenMode(false);
+    }
+  });
+}
+/* MAPS: load Leaflet and initialize map with search/geolocate */
+let mapInitialized = false;
+let mapInstance = null;
+let mapMarker = null;
+
+function loadLeaflet(callback){
+  if(window.L) return callback();
+  // CSS
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  document.head.appendChild(link);
+  // JS
+  const s = document.createElement('script');
+  s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  s.onload = callback;
+  s.onerror = ()=>console.error('Failed to load Leaflet');
+  document.head.appendChild(s);
+}
+
+function openMap(){
+  const el = document.getElementById('maps');
+  el.style.display = 'flex';
+  if(!mapInitialized){
+    const container = document.getElementById('mapContainer');
+    // ensure container has explicit height
+    container.style.position = 'relative';
+    container.style.minHeight = '300px';
+    loadLeaflet(()=>{
+      try{ initMap(); mapInitialized = true; }
+      catch(e){ console.error('Map init error', e); }
+    });
+  }
+}
+
+function closeMap(){
+  const el = document.getElementById('maps');
+  el.style.display = 'none';
+  if(mapInstance){ mapInstance.remove(); mapInstance = null; }
+  mapInitialized = false;
+}
+
+function initMap(){
+  const L = window.L;
+  const container = document.getElementById('mapContainer');
+  container.innerHTML = '';
+  const mapDiv = document.createElement('div');
+  mapDiv.style.width = '100%';
+  mapDiv.style.height = '100%';
+  container.appendChild(mapDiv);
+  mapInstance = L.map(mapDiv).setView([20,0], 2);
+  // define both base (OSM) and satellite (Esri WorldImagery)
+  mapInstance._osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  });
+  mapInstance._satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+  });
+  mapInstance._currentType = 'osm';
+  mapInstance._osmLayer.addTo(mapInstance);
+  // Leaflet may need an invalidateSize after layout
+  setTimeout(()=>{ try{ if(mapInstance) mapInstance.invalidateSize(); }catch(e){} },60);
+}
+
+async function doSearch(){
+  const q = (document.getElementById('mapSearch').value||'').trim();
+  if(!q) return;
+  try{
+    const res = await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q), {headers:{'Accept':'application/json'}});
+    const data = await res.json();
+    if(!data || data.length===0) return alert('No results');
+    const first = data[0];
+    const lat = parseFloat(first.lat), lon = parseFloat(first.lon);
+    if(mapMarker) mapMarker.remove();
+    mapInstance.setView([lat, lon], 13);
+    mapMarker = window.L.marker([lat, lon]).addTo(mapInstance).bindPopup(first.display_name).openPopup();
+  }catch(e){ console.error('Search error',e); }
+}
+
+function geolocate(){
+  if(!navigator.geolocation) return alert('Geolocation not supported');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    if(mapMarker) mapMarker.remove();
+    mapInstance.setView([lat, lon], 14);
+    mapMarker = window.L.marker([lat, lon]).addTo(mapInstance).bindPopup('You are here').openPopup();
+  }, err=>{ alert('Unable to get location: '+err.message); });
+}
+
+function setMapType(type){
+  if(!mapInstance) return;
+  if(type === mapInstance._currentType) return;
+  if(mapInstance._currentType === 'osm') mapInstance.removeLayer(mapInstance._osmLayer);
+  else if(mapInstance._currentType === 'sat') mapInstance.removeLayer(mapInstance._satLayer);
+  if(type === 'osm') mapInstance._osmLayer.addTo(mapInstance);
+  else if(type === 'sat') mapInstance._satLayer.addTo(mapInstance);
+  mapInstance._currentType = type;
+  const btn = document.getElementById('satToggle');
+  if(btn) btn.innerText = (type==='sat' ? 'Map' : 'Satellite');
+}
+
+function toggleSatellite(){
+  if(!mapInstance) return;
+  setMapType(mapInstance._currentType === 'osm' ? 'sat' : 'osm');
+}
+
+// Google mode: use an embeddable iframe (maps?q=...&output=embed)
+let mapMode = 'leaflet';
+let googleIframe = null;
+
+function ensureMapContainer(){
+  const container = document.getElementById('mapContainer');
+  if(!container) return null;
+  return container;
+}
+
+function switchToGoogle(q){
+  const container = ensureMapContainer(); if(!container) return;
+  // remove leaflet map if present
+  if(mapInstance){ mapInstance.remove(); mapInstance = null; mapInitialized = false; }
+  container.innerHTML = '';
+  googleIframe = document.createElement('iframe');
+  googleIframe.style.border = 'none';
+  googleIframe.style.width = '100%';
+  googleIframe.style.height = '100%';
+  const base = 'https://www.google.com/maps';
+  let src = base;
+  if(q){ src = base + '?q=' + encodeURIComponent(q) + '&output=embed'; }
+  else src = base + '?output=embed';
+  googleIframe.src = src;
+  container.appendChild(googleIframe);
+  mapMode = 'google';
+  const gbtn = document.getElementById('googleToggle'); if(gbtn) gbtn.innerText='Leaflet';
+}
+
+function switchToLeaflet(){
+  const container = ensureMapContainer(); if(!container) return;
+  if(googleIframe){ googleIframe.remove(); googleIframe = null; }
+  // reinit leaflet
+  loadLeaflet(()=>{ try{ initMap(); mapInitialized = true; } catch(e){ console.error(e); } });
+  // ensure resize after switching
+  setTimeout(()=>{ try{ if(mapInstance) mapInstance.invalidateSize(); }catch(e){} },120);
+  mapMode = 'leaflet';
+  const gbtn = document.getElementById('googleToggle'); if(gbtn) gbtn.innerText='Google';
+}
+
+function toggleGoogle(){
+  if(mapMode === 'leaflet'){
+    const q = (document.getElementById('mapSearch').value||'').trim();
+    switchToGoogle(q||null);
+  } else {
+    switchToLeaflet();
+  }
+}
+
+// adapt search to google mode
+const _origDoSearch = doSearch;
+async function doSearch(){
+  const q = (document.getElementById('mapSearch').value||'').trim();
+  if(!q) return;
+  if(mapMode === 'google'){
+    if(googleIframe) googleIframe.src = 'https://www.google.com/maps?q='+encodeURIComponent(q)+'&output=embed';
+    else switchToGoogle(q);
+    return;
+  }
+  // fallback to original leaflet search
+  return _origDoSearch();
+}
+
+
+function askBuiltInAI(scope='home'){
+  const input = scope === 'win' ? document.getElementById('geminiPromptWin') : document.getElementById('geminiPromptHome');
+  const prompt = (input ? input.value : '').trim();
+  if(!prompt){
+    updateGeminiStatus('Please type a question first.');
+    return;
+  }
+  const reply = generateAIReply(prompt);
+  renderAIReply(scope, prompt, reply);
+  updateGeminiStatus('AI responded successfully.');
+}
+
+function clearAI(scope='home'){
+  const output = scope === 'win' ? document.getElementById('geminiFrameWin') : document.getElementById('geminiFrameHome');
+  const input = scope === 'win' ? document.getElementById('geminiPromptWin') : document.getElementById('geminiPromptHome');
+  if(output) output.innerHTML = 'Chat cleared. Ask me anything.';
+  if(input) input.value = '';
+  updateGeminiStatus('Ready.');
+}
+
+function renderAIReply(scope, prompt, reply){
+  const output = scope === 'win' ? document.getElementById('geminiFrameWin') : document.getElementById('geminiFrameHome');
+  if(!output) return;
+  output.innerHTML = `<div style="opacity:.75;font-size:12px;margin-bottom:8px">You: ${escapeHTML(prompt)}</div><div>${escapeHTML(reply)}</div>`;
+}
+
+function escapeHTML(str){
+  return str.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function generateAIReply(prompt){
+  const p = prompt.toLowerCase();
+  if(p.includes('phone') && p.includes('design')) return 'Try a dark body with the Nebula wallpaper, then add matching app icon gradients for consistency.';
+  if(p.includes('roblox')) return 'For Roblox, add game thumbnails, favorite toggles, and a "recently played" panel to make it feel more real.';
+  if(p.includes('minecraft')) return 'You can improve Minecraft mode by adding block type buttons and camera controls (rotate/zoom) for the cube.';
+  if(p.includes('map')) return 'Add saved places, route options, and a mini search history to make Maps feel like a full app.';
+  if(p.includes('code') || p.includes('javascript')) return 'Keep functions small, avoid duplicate handlers, and split this giant file into modules when you can.';
+  return 'Great idea. I can help you plan the feature, design the UI, and write the exact HTML/CSS/JS steps next.';
+}
+
+function updateGeminiStatus(text){
+  const a=document.getElementById('geminiStatusHome');
+  const b=document.getElementById('geminiStatusWin');
+  if(a) a.innerText=text;
+  if(b) b.innerText=text;
+}
+
+function updateWeather(scope='home'){
+  const input = scope === 'win' ? document.getElementById('weatherCityWin') : document.getElementById('weatherCityHome');
+  const output = scope === 'win' ? document.getElementById('weatherOutputWin') : document.getElementById('weatherOutputHome');
+  const city = (input ? input.value : '').trim();
+  if(!city){
+    if(output) output.innerText = 'Please enter a city.';
+    return;
+  }
+  const hash = [...city.toLowerCase()].reduce((a,c)=>a + c.charCodeAt(0),0);
+  const temp = 12 + (hash % 21);
+  const conditions = ['Sunny ☀️','Cloudy ☁️','Rainy 🌧️','Windy 🌬️','Stormy ⛈️'];
+  const cond = conditions[hash % conditions.length];
+  if(output) output.innerText = `${city}: ${temp}°C • ${cond}`;
+}
+
+function runVSCode(scope='home'){
+  const editor = scope === 'win' ? document.getElementById('vscodeEditorWin') : document.getElementById('vscodeEditorHome');
+  const preview = scope === 'win' ? document.getElementById('vscodePreviewWin') : document.getElementById('vscodePreviewHome');
+  if(!editor || !preview) return;
+  preview.srcdoc = editor.value;
+}
+
+let activeCallNumber = null;
+function startCall(number=null, name=''){ 
+  const n = (number || (phoneNumberInput ? phoneNumberInput.value.trim() : '')).replace(/[^\d+]/g,'');
+  if(!n){
+    if(callStatus) callStatus.innerText = 'Enter a valid phone number.';
+    return;
+  }
+  activeCallNumber = n;
+  const label = name ? `${name} (${n})` : n;
+  if(callStatus) callStatus.innerText = `Calling ${label}...`;
+  window.open(`tel:${n}`, '_self');
+}
+
+function endCall(){
+  if(callStatus) callStatus.innerText = activeCallNumber ? 'Call ended.' : 'No active call.';
+  activeCallNumber = null;
+}
+
+let activeChat = '';
+const chatHistory = { Alex: [], Jordan: [], Sam: [] };
+function openChat(name){
+  activeChat = name;
+  if(chatTitle) chatTitle.innerText = `Chat with ${name}`;
+  renderChat();
+}
+
+function renderChat(){
+  if(!chatLog) return;
+  if(!activeChat){
+    chatLog.innerText = 'Pick a person to start texting.';
+    return;
+  }
+  const msgs = chatHistory[activeChat] || [];
+  chatLog.innerHTML = msgs.map(m=>`<div style="margin-bottom:6px"><strong>${m.from}:</strong> ${escapeHTML(m.text)}</div>`).join('') || 'No messages yet.';
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function sendMessage(){
+  if(!activeChat){
+    if(chatLog) chatLog.innerText = 'Pick a person first.';
+    return;
+  }
+  const text = (chatInput ? chatInput.value.trim() : '');
+  if(!text) return;
+  chatHistory[activeChat].push({from:'You', text});
+  const reply = `Got it — ${activeChat} will reply soon.`;
+  chatHistory[activeChat].push({from:activeChat, text:reply});
+  if(chatInput) chatInput.value = '';
+  renderChat();
+}
+
+
+const clipState = { home:{start:0,end:1}, win:{start:0,end:1} };
+
+function getVideoEls(scope='home'){
+  return {
+    video: document.getElementById(scope==='win' ? 'videoPreviewWin' : 'videoPreviewHome'),
+    start: document.getElementById(scope==='win' ? 'videoStartWin' : 'videoStartHome'),
+    end: document.getElementById(scope==='win' ? 'videoEndWin' : 'videoEndHome'),
+    bright: document.getElementById(scope==='win' ? 'videoBrightWin' : 'videoBrightHome'),
+    contrast: document.getElementById(scope==='win' ? 'videoContrastWin' : 'videoContrastHome'),
+    status: document.getElementById(scope==='win' ? 'videoStatusWin' : 'videoStatusHome')
+  };
+}
+
+function loadVideoFile(scope, input){
+  const {video,status} = getVideoEls(scope);
+  const file = input && input.files && input.files[0];
+  if(!file || !video) return;
+  const url = URL.createObjectURL(file);
+  video.src = url;
+  video.onloadedmetadata = ()=>{
+    clipState[scope].start = 0;
+    clipState[scope].end = 1;
+    const {start,end} = getVideoEls(scope);
+    if(start) start.value = 0;
+    if(end) end.value = 100;
+    if(status) status.innerText = `Loaded ${file.name} (${Math.round(video.duration)}s)`;
+  };
+}
+
+function updateClipPoint(scope='home'){
+  const {video,start,end,status} = getVideoEls(scope);
+  if(!video || !start || !end || !video.duration) return;
+  let s = Number(start.value)/100;
+  let e = Number(end.value)/100;
+  if(e <= s + 0.02){
+    e = Math.min(1, s + 0.02);
+    end.value = Math.round(e*100);
+  }
+  clipState[scope].start = s;
+  clipState[scope].end = e;
+  if(status) status.innerText = `Clip: ${Math.round(s*video.duration)}s to ${Math.round(e*video.duration)}s`;
+}
+
+function applyVideoFX(scope='home'){
+  const {video,bright,contrast,status} = getVideoEls(scope);
+  if(!video || !bright || !contrast) return;
+  video.style.filter = `brightness(${bright.value}%) contrast(${contrast.value}%)`;
+  if(status) status.innerText = `FX: brightness ${bright.value}% • contrast ${contrast.value}%`;
+}
+
+function playClip(scope='home'){
+  const {video,status} = getVideoEls(scope);
+  if(!video || !video.duration) return;
+  const st = clipState[scope];
+  video.currentTime = st.start * video.duration;
+  video.play();
+  const onTime = ()=>{
+    if(video.currentTime >= st.end * video.duration){
+      video.currentTime = st.start * video.duration;
+    }
+  };
+  video.ontimeupdate = onTime;
+  if(status) status.innerText = 'Playing selected clip in loop.';
+}
+
+function pauseClip(scope='home'){
+  const {video,status} = getVideoEls(scope);
+  if(!video) return;
+  video.pause();
+  video.ontimeupdate = null;
+  if(status) status.innerText = 'Paused.';
+}
+
+function downloadFrame(scope='home'){
+  const {video,status} = getVideoEls(scope);
+  if(!video || video.readyState < 2) return;
+  const c = document.createElement('canvas');
+  c.width = video.videoWidth || 640;
+  c.height = video.videoHeight || 360;
+  const ctx = c.getContext('2d');
+  ctx.filter = getComputedStyle(video).filter;
+  ctx.drawImage(video,0,0,c.width,c.height);
+  const a = document.createElement('a');
+  a.href = c.toDataURL('image/png');
+  a.download = 'video-frame.png';
+  a.click();
+  if(status) status.innerText = 'Frame exported as PNG.';
+}
+
+
+
+/* BALDI BASICS */
+const baldiState = {
+  running:false,
+  notebooks:0,
+  timer:90,
+  teacherDistance:100,
+  currentAnswer:4,
+  ticker:null,
+  pulse:0
+};
+
+function openBaldiBasics(){
+  openApp('baldiBasics');
+  if(!baldiState.running) restartBaldiBasics();
+  setTimeout(()=>baldiAnswerInput?.focus(),60);
+}
+function closeBaldiBasics(){
+  closeApp('baldiBasics');
+  baldiState.running=false;
+  if(baldiState.ticker) clearInterval(baldiState.ticker);
+  baldiState.ticker=null;
+}
+function restartBaldiBasics(){
+  baldiState.running=true;
+  baldiState.notebooks=0;
+  baldiState.timer=90;
+  baldiState.teacherDistance=100;
+  if(baldiState.ticker) clearInterval(baldiState.ticker);
+  baldiState.ticker=setInterval(baldiTick,1000);
+  nextBaldiQuestion();
+  renderBaldiHud('Find all notebooks!');
+}
+function nextBaldiQuestion(){
+  const a = Math.floor(Math.random()*20)+1;
+  const b = Math.floor(Math.random()*15)+1;
+  const op = Math.random()<0.5 ? '+' : '-';
+  baldiState.currentAnswer = op==='+' ? a+b : a-b;
+  if(baldiQuestionLabel) baldiQuestionLabel.innerText = `${a} ${op} ${b} = ?`;
+  if(baldiAnswerInput){ baldiAnswerInput.value=''; baldiAnswerInput.focus(); }
+}
+function renderBaldiHud(msg=''){
+  if(baldiNotebooksLabel) baldiNotebooksLabel.innerText = `Notebooks: ${baldiState.notebooks}/7`;
+  if(baldiTimerLabel) baldiTimerLabel.innerText = `Time Left: ${baldiState.timer}s`;
+  if(msg && baldiStatusLabel) baldiStatusLabel.innerText = msg;
+  const d = Math.max(0, Math.min(100, baldiState.teacherDistance));
+  const teacherScale = 0.45 + (100-d)*0.012;
+  const teacherY = -Math.max(0,(100-d)*0.55);
+  if(baldiTeacher){
+    baldiTeacher.style.transform = `translateX(-50%) translateY(${teacherY}px) scale(${teacherScale})`;
+    baldiTeacher.style.filter = `drop-shadow(0 6px ${12 + (100-d)*0.35}px rgba(0,0,0,.35))`;
+  }
+  if(baldiHallway){
+    const sway = Math.sin(baldiState.pulse/8) * 1.3;
+    baldiHallway.style.transform = `rotateX(0deg) translateX(${sway}px)`;
+  }
+  if(baldiFloor){
+    const speedLines = 66 + Math.max(0,(100-d)*0.9);
+    baldiFloor.style.filter = `brightness(${1 + (100-d)/180})`;
+    baldiFloor.style.backgroundSize = `${speedLines}px 100%`;
+  }
+  if(baldiNotebookDot){
+    baldiNotebookDot.style.transform = `translateX(-50%) translateY(${Math.sin(baldiState.pulse/5)*3}px)`;
+    baldiNotebookDot.innerText = '📗';
+  }
+  if(baldiPlayer){
+    const panic = Math.max(0,(34-d)/34);
+    baldiPlayer.style.width = `${56 + panic*24}px`;
+    baldiPlayer.style.background = panic>0.5 ? '#ef4444' : '#0ea5e9';
+  }
+}
+function baldiTick(){
+  if(!baldiState.running) return;
+  baldiState.timer--;
+  baldiState.pulse++;
+  baldiState.teacherDistance -= (2.4 + baldiState.notebooks*0.18);
+  renderBaldiHud();
+  if(baldiState.timer<=0 || baldiState.teacherDistance<=0){
+    baldiState.running=false;
+    if(baldiState.ticker) clearInterval(baldiState.ticker);
+    if(baldiStatusLabel) baldiStatusLabel.innerText='Baldi caught you! Restart and try again.';
+  }
+}
+function submitBaldiAnswer(){
+  if(!baldiState.running) return;
+  const guess = Number(baldiAnswerInput?.value);
+  if(guess===baldiState.currentAnswer){
+    baldiState.notebooks++;
+    baldiState.teacherDistance = Math.min(100, baldiState.teacherDistance + 12);
+    renderBaldiHud('Correct! Keep moving!');
+    if(baldiState.notebooks>=7){
+      baldiState.running=false;
+      if(baldiState.ticker) clearInterval(baldiState.ticker);
+      if(baldiStatusLabel) baldiStatusLabel.innerText="YOU WIN! You escaped Baldi's school!";
+      return;
+    }
+  } else {
+    baldiState.teacherDistance -= 18;
+    renderBaldiHud('Wrong! Baldi is speeding up!');
+  }
+  nextBaldiQuestion();
+}
+function skipBaldiQuestion(){
+  if(!baldiState.running) return;
+  baldiState.teacherDistance -= 12;
+  baldiState.timer = Math.max(0, baldiState.timer-5);
+  renderBaldiHud('You skipped! Baldi got closer.');
+  nextBaldiQuestion();
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('baldiBasics')?.style.display!=='flex') return;
+  if(e.key==='Enter') submitBaldiAnswer();
+});
+
+/* CAR GAME */
+const carState = {
+  running:false,
+  raf:0,
+  lane:1,
+  carY:348,
+  distance:0,
+  speed:12,
+  boost:0,
+  best:Number(localStorage.getItem('streetRushBest')||0),
+  obstacles:[],
+  coins:[],
+  cooldown:0
+};
+
+function openCarGame(){
+  openApp('carGame');
+  if(!carState.running) restartCarGame();
+}
+function closeCarGame(){
+  closeApp('carGame');
+  carState.running=false;
+  if(carState.raf) cancelAnimationFrame(carState.raf);
+}
+function moveCarLeft(){ carState.lane=Math.max(0,carState.lane-1); }
+function moveCarRight(){ carState.lane=Math.min(2,carState.lane+1); }
+function activateNitro(){ carState.boost = Math.max(carState.boost, 120); }
+
+function restartCarGame(){
+  if(!carCanvas) return;
+  carState.running=true;
+  carState.lane=1;
+  carState.distance=0;
+  carState.speed=12;
+  carState.boost=0;
+  carState.obstacles=[];
+  carState.coins=[];
+  carState.cooldown=0;
+  if(carStatusLabel) carStatusLabel.innerText='Drive!';
+  if(carState.raf) cancelAnimationFrame(carState.raf);
+  carLoop();
+}
+
+function carLoop(){
+  if(!carState.running || !carCanvas) return;
+  const ctx=carCanvas.getContext('2d');
+  const w=carCanvas.width,h=carCanvas.height;
+  const laneX=[w*0.3,w*0.5,w*0.7];
+  const playerX=laneX[carState.lane];
+  const playerW=56, playerH=92;
+
+  const nitroOn = carState.boost>0;
+  const gameSpeed = carState.speed + (nitroOn ? 7 : 0);
+  if(carState.boost>0) carState.boost--;
+  carState.distance += gameSpeed*0.8;
+  carState.speed = Math.min(22, carState.speed + 0.0025);
+  if(carState.cooldown>0) carState.cooldown--;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#87ceeb'; ctx.fillRect(0,0,w,h*0.45);
+  ctx.fillStyle='#1f2937'; ctx.fillRect(0,h*0.45,w,h*0.55);
+  for(let i=0;i<12;i++){
+    const y=((i*70 + (carState.distance*2))%h);
+    ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.fillRect(w*0.495,y,10,36);
+  }
+
+  if(carState.cooldown<=0){
+    carState.obstacles.push({lane:Math.floor(Math.random()*3),y:-120,type:Math.random()<0.5?'car':'truck'});
+    if(Math.random()<0.55) carState.coins.push({lane:Math.floor(Math.random()*3),y:-70});
+    carState.cooldown = Math.max(18, 54-Math.floor(carState.speed*1.6));
+  }
+
+  carState.obstacles.forEach(o=>o.y += gameSpeed*1.85);
+  carState.coins.forEach(c=>c.y += gameSpeed*1.65);
+  carState.obstacles = carState.obstacles.filter(o=>o.y < h+130);
+  carState.coins = carState.coins.filter(c=>c.y < h+80);
+
+  let crashed=false;
+  carState.obstacles.forEach(o=>{
+    const ox=laneX[o.lane], ow=o.type==='truck'?72:58, oh=o.type==='truck'?110:88;
+    ctx.fillStyle=o.type==='truck'?'#334155':'#ef4444';
+    ctx.fillRect(ox-ow/2,o.y-oh/2,ow,oh);
+    if(Math.abs(ox-playerX)<(ow+playerW)*0.44 && Math.abs(o.y-carState.carY)<(oh+playerH)*0.44) crashed=true;
+  });
+
+  carState.coins = carState.coins.filter(c=>{
+    const cx=laneX[c.lane];
+    ctx.beginPath(); ctx.arc(cx,c.y,10,0,Math.PI*2); ctx.fillStyle='#fde047'; ctx.fill();
+    if(Math.abs(cx-playerX)<36 && Math.abs(c.y-carState.carY)<42){ carState.distance+=45; return false; }
+    return true;
+  });
+
+  ctx.fillStyle = nitroOn ? '#f97316' : '#38bdf8';
+  ctx.fillRect(playerX-playerW/2,carState.carY-playerH/2,playerW,playerH);
+  ctx.fillStyle='#111827';
+  ctx.fillRect(playerX-playerW/2+8,carState.carY-playerH/2+12,playerW-16,26);
+
+  if(carDistanceLabel) carDistanceLabel.innerText = `Distance: ${Math.floor(carState.distance)} m`;
+  if(carSpeedLabel) carSpeedLabel.innerText = `Speed: ${Math.floor(gameSpeed*12)} km/h`;
+  if(carBestLabel) carBestLabel.innerText = `Best: ${Math.floor(Math.max(carState.best,carState.distance))} m`;
+  if(carStatusLabel) carStatusLabel.innerText = nitroOn ? 'NITRO BOOST!' : 'Drive!';
+
+  if(crashed){
+    carState.running=false;
+    carState.best=Math.max(carState.best,carState.distance);
+    localStorage.setItem('streetRushBest', String(Math.floor(carState.best)));
+    if(carStatusLabel) carStatusLabel.innerText='CRASH! Tap Restart';
+    return;
+  }
+  carState.raf=requestAnimationFrame(carLoop);
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('carGame')?.style.display!=='flex') return;
+  if(e.key==='ArrowLeft' || e.key.toLowerCase()==='a') moveCarLeft();
+  if(e.key==='ArrowRight' || e.key.toLowerCase()==='d') moveCarRight();
+  if(e.key===' ') { e.preventDefault(); activateNitro(); }
+});
+
+
+/* KID RACER 3D */
+const kidRacer = {
+  run:false, raf:0, lane:1, z:0, speed:6, turbo:0,
+  stars:0, best:Number(localStorage.getItem('kidRacerBest')||0),
+  traffic:[], starsOnRoad:[], spawn:0
+};
+
+function openKidRacer3D(){
+  openApp('kidRacer3D');
+  if(!kidRacer.run) restartKidRacer3D();
+}
+function closeKidRacer3D(){
+  closeApp('kidRacer3D');
+  kidRacer.run=false;
+  if(kidRacer.raf) cancelAnimationFrame(kidRacer.raf);
+}
+function kidRacerLeft(){ kidRacer.lane=Math.max(0,kidRacer.lane-1); }
+function kidRacerRight(){ kidRacer.lane=Math.min(2,kidRacer.lane+1); }
+function kidRacerBoost(){ kidRacer.turbo=Math.max(kidRacer.turbo,95); }
+
+function restartKidRacer3D(){
+  if(!kidRacerCanvas) return;
+  kidRacer.run=true; kidRacer.lane=1; kidRacer.z=0; kidRacer.speed=6; kidRacer.turbo=0;
+  kidRacer.stars=0; kidRacer.traffic=[]; kidRacer.starsOnRoad=[]; kidRacer.spawn=0;
+  if(kidRacerStateLabel) kidRacerStateLabel.innerText='Go!';
+  if(kidRacer.raf) cancelAnimationFrame(kidRacer.raf);
+  kidRacerLoop();
+}
+
+function kidProject(x,z,w,h,canvasW,canvasH){
+  const horizon = canvasH*0.36;
+  const scale = 1/(z*0.012 + 0.22);
+  return {
+    x: canvasW*0.5 + x*scale,
+    y: horizon + (1-scale*0.22)*(canvasH-horizon),
+    w: w*scale,
+    h: h*scale,
+    scale
+  };
+}
+
+function kidRacerLoop(){
+  if(!kidRacer.run || !kidRacerCanvas) return;
+  const ctx=kidRacerCanvas.getContext('2d');
+  const cw=kidRacerCanvas.width, ch=kidRacerCanvas.height;
+  const lanes=[-140,0,140];
+  const turboOn = kidRacer.turbo>0;
+  const step = kidRacer.speed + (turboOn?3:0);
+  kidRacer.z += step;
+  if(kidRacer.turbo>0) kidRacer.turbo--;
+  kidRacer.speed = Math.min(11, kidRacer.speed + 0.0014);
+
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle='#8bd3ff'; ctx.fillRect(0,0,cw,ch*0.45);
+  ctx.fillStyle='#8fd27a'; ctx.fillRect(0,ch*0.45,cw,ch*0.55);
+
+  // road slices for pseudo 3D
+  for(let i=90;i>0;i--){
+    const z=i*14 + (kidRacer.z%14);
+    const p=kidProject(0,z,0,0,cw,ch);
+    const rw=(cw*0.12) + (90-i)*7.6;
+    const y=p.y;
+    ctx.fillStyle = i%2 ? '#4b5563' : '#374151';
+    ctx.fillRect(cw/2-rw/2, y, rw, 5);
+    ctx.fillStyle='rgba(255,255,255,.35)';
+    ctx.fillRect(cw/2-2, y+1, 4, 4);
+  }
+
+  if(kidRacer.spawn<=0){
+    kidRacer.traffic.push({lane:Math.floor(Math.random()*3),z:1200,type:Math.random()<0.6?'car':'bus'});
+    if(Math.random()<0.65) kidRacer.starsOnRoad.push({lane:Math.floor(Math.random()*3),z:1000});
+    kidRacer.spawn = Math.max(20, 60 - Math.floor(kidRacer.speed*3));
+  }
+  kidRacer.spawn--;
+
+  // draw traffic
+  let hit=false;
+  kidRacer.traffic.forEach(t=>{ t.z -= step*10; });
+  kidRacer.traffic = kidRacer.traffic.filter(t=>t.z>20);
+  for(const t of kidRacer.traffic){
+    const p=kidProject(lanes[t.lane], t.z, t.type==='bus'?70:58, t.type==='bus'?95:78, cw,ch);
+    ctx.fillStyle = t.type==='bus' ? '#f59e0b' : '#ef4444';
+    ctx.fillRect(p.x-p.w/2,p.y-p.h,p.w,p.h);
+    const playerZ=120;
+    if(t.z<210 && t.z>40 && t.lane===kidRacer.lane) hit=true;
+  }
+
+  // stars
+  kidRacer.starsOnRoad.forEach(st=>{ st.z -= step*10; });
+  kidRacer.starsOnRoad = kidRacer.starsOnRoad.filter(st=>st.z>20);
+  kidRacer.starsOnRoad = kidRacer.starsOnRoad.filter(st=>{
+    const p=kidProject(lanes[st.lane], st.z, 20,20,cw,ch);
+    ctx.beginPath(); ctx.arc(p.x,p.y-p.h*0.6, Math.max(4,p.w*0.2), 0, Math.PI*2); ctx.fillStyle='#fde047'; ctx.fill();
+    if(st.z<210 && st.z>40 && st.lane===kidRacer.lane){ kidRacer.stars+=1; return false; }
+    return true;
+  });
+
+  // player car front
+  const px = cw/2 + lanes[kidRacer.lane]*0.42;
+  const py = ch-66;
+  ctx.fillStyle = turboOn ? '#22d3ee' : '#60a5fa';
+  ctx.fillRect(px-34,py-44,68,44);
+  ctx.fillStyle='#111827'; ctx.fillRect(px-24,py-38,48,18);
+  if(turboOn){ ctx.fillStyle='rgba(34,211,238,.7)'; ctx.fillRect(px-18,py+2,36,10); }
+
+  if(kidRacerScoreLabel) kidRacerScoreLabel.innerText=`Stars: ${kidRacer.stars}`;
+  if(kidRacerSpeedLabel) kidRacerSpeedLabel.innerText=`Speed: ${Math.floor(step*18)}`;
+  if(kidRacerBestLabel) kidRacerBestLabel.innerText=`Best: ${Math.max(kidRacer.best,kidRacer.stars)}`;
+  if(kidRacerStateLabel) kidRacerStateLabel.innerText = turboOn ? 'Turbo!' : 'Go!';
+
+  if(hit){
+    kidRacer.run=false;
+    kidRacer.best=Math.max(kidRacer.best,kidRacer.stars);
+    localStorage.setItem('kidRacerBest', String(kidRacer.best));
+    if(kidRacerStateLabel) kidRacerStateLabel.innerText='Oops! Try again!';
+    return;
+  }
+  kidRacer.raf=requestAnimationFrame(kidRacerLoop);
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('kidRacer3D')?.style.display!=='flex') return;
+  if(e.key==='ArrowLeft' || e.key.toLowerCase()==='a') kidRacerLeft();
+  if(e.key==='ArrowRight' || e.key.toLowerCase()==='d') kidRacerRight();
+  if(e.key===' ') { e.preventDefault(); kidRacerBoost(); }
+});
+
+
+/* GEOMETRY DASH LITE */
+const gd = {
+  run:false, raf:0, score:0, best:Number(localStorage.getItem('gdLiteBest')||0),
+  y:0, vy:0, gravity:0.85, jumpPower:14.5, ground:360,
+  obstacles:[], spawn:0, speed:7.2, easy:false
+};
+
+function openGeometryDashLite(){
+  openApp('geometryDashLite');
+  if(!gd.run) gdRestart();
+}
+function closeGeometryDashLite(){
+  closeApp('geometryDashLite');
+  gd.run=false;
+  if(gd.raf) cancelAnimationFrame(gd.raf);
+}
+function gdJump(){
+  if(!gd.run) return;
+  if(gd.y>=gd.ground-0.5){ gd.vy = -gd.jumpPower; }
+}
+function gdToggleMode(){
+  gd.easy=!gd.easy;
+  if(gdModeLabel) gdModeLabel.innerText = gd.easy ? 'Mode: Easy' : 'Mode: Normal';
+}
+function gdRestart(){
+  if(!gdCanvas) return;
+  gd.run=true; gd.score=0; gd.y=gd.ground; gd.vy=0; gd.obstacles=[]; gd.spawn=35; gd.speed=7.2;
+  if(gdStateLabel) gdStateLabel.innerText='Tap jump!';
+  if(gd.raf) cancelAnimationFrame(gd.raf);
+  gdLoop();
+}
+
+function gdLoop(){
+  if(!gd.run || !gdCanvas) return;
+  const ctx=gdCanvas.getContext('2d');
+  const w=gdCanvas.width,h=gdCanvas.height;
+
+  ctx.clearRect(0,0,w,h);
+  // bg
+  ctx.fillStyle='#0ea5e9'; ctx.fillRect(0,0,w,h*0.55);
+  ctx.fillStyle='#1d4ed8'; ctx.fillRect(0,h*0.55,w,h*0.15);
+  ctx.fillStyle='#0b1026'; ctx.fillRect(0,h*0.7,w,h*0.3);
+
+  // floor pattern
+  for(let i=0;i<24;i++){
+    const x=(i*56 - (gd.score*2)%56);
+    ctx.fillStyle=i%2?'#1e3a8a':'#1d4ed8';
+    ctx.fillRect(x,gd.ground+52,56,18);
+  }
+
+  // player cube
+  const cubeSize=42;
+  const px=140;
+  const prevY = gd.y;
+  gd.vy += gd.gravity;
+  gd.y += gd.vy;
+  if(gd.y>gd.ground){ gd.y=gd.ground; gd.vy=0; }
+  const rotation = gd.y<gd.ground ? (gd.score*0.18)%6.28 : 0;
+  ctx.save();
+  ctx.translate(px, gd.y+20);
+  ctx.rotate(rotation);
+  ctx.fillStyle='#22d3ee';
+  ctx.fillRect(-cubeSize/2,-cubeSize/2,cubeSize,cubeSize);
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(-12,-12,8,8); ctx.fillRect(4,-12,8,8);
+  ctx.restore();
+
+  // spawn obstacles (short spikes + jumpable blocks)
+  if(gd.spawn<=0){
+    const roll = Math.random();
+    if(roll < 0.42){
+      gd.obstacles.push({x:w+20,w:34,h:34,y:gd.ground+20-34,kind:'spike'});
+    } else if(roll < 0.72){
+      gd.obstacles.push({x:w+20,w:70,h:26,y:gd.ground+20-26,kind:'platform'});
+    } else {
+      gd.obstacles.push({x:w+20,w:96,h:34,y:gd.ground+20-34,kind:'platform'});
+    }
+    gd.spawn = gd.easy ? (56 + Math.floor(Math.random()*32)) : (36 + Math.floor(Math.random()*28));
+  }
+  gd.spawn--;
+
+  // update obstacles
+  gd.obstacles.forEach(o=>o.x -= gd.speed);
+  gd.obstacles = gd.obstacles.filter(o=>o.x+o.w>-20);
+
+  // draw obstacles + collision
+  let dead=false;
+  const pr={x:px-cubeSize/2,y:gd.y,c:cubeSize};
+  const prevBottom = prevY + cubeSize;
+  const currBottom = gd.y + cubeSize;
+
+  for(const o of gd.obstacles){
+    if(o.kind==='spike'){
+      ctx.fillStyle='#fb923c';
+      ctx.beginPath();
+      ctx.moveTo(o.x,o.y+o.h);
+      ctx.lineTo(o.x+o.w*0.5,o.y);
+      ctx.lineTo(o.x+o.w,o.y+o.h);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillStyle='#22c55e';
+      ctx.fillRect(o.x,o.y,o.w,o.h);
+      ctx.fillStyle='rgba(255,255,255,.35)';
+      ctx.fillRect(o.x,o.y,o.w,5);
+    }
+
+    const overlapX = pr.x < o.x+o.w && pr.x+pr.c > o.x;
+    const overlapY = pr.y < o.y+o.h && pr.y+pr.c > o.y;
+    if(!overlapX || !overlapY) continue;
+
+    if(o.kind==='platform'){
+      const landing = gd.vy >= 0 && prevBottom <= o.y + 8 && currBottom >= o.y;
+      if(landing){
+        gd.y = o.y - cubeSize;
+        gd.vy = 0;
+        continue;
+      }
+    }
+    dead=true;
+  }
+
+  gd.score += gd.easy ? 0.7 : 1;
+  gd.speed = Math.min(gd.easy?9.5:12, gd.speed + (gd.easy?0.0009:0.0014));
+
+  if(gdScoreLabel) gdScoreLabel.innerText=`Score: ${Math.floor(gd.score)}`;
+  if(gdBestLabel) gdBestLabel.innerText=`Best: ${Math.max(gd.best,Math.floor(gd.score))}`;
+
+  if(dead){
+    gd.run=false;
+    gd.best=Math.max(gd.best,Math.floor(gd.score));
+    localStorage.setItem('gdLiteBest', String(gd.best));
+    if(gdStateLabel) gdStateLabel.innerText='Crashed! Restart and try again!';
+    return;
+  }
+  gd.raf=requestAnimationFrame(gdLoop);
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('geometryDashLite')?.style.display!=='flex') return;
+  if(e.key===' ' || e.key==='ArrowUp'){ e.preventDefault(); gdJump(); }
+});
+if(gdCanvas){ gdCanvas.addEventListener('pointerdown', gdJump); }
+
+
+/* PHONE SWIPE CONTROLS */
+let swipeStartX = null;
+let swipeStartY = null;
+
+function isAppOpen(id){
+  return document.getElementById(id)?.style.display === 'flex';
+}
+
+if(screenElement){
+  screenElement.addEventListener('touchstart', e=>{
+    const t = e.changedTouches?.[0];
+    if(!t) return;
+    swipeStartX = t.clientX;
+    swipeStartY = t.clientY;
+  }, { passive:true });
+
+  screenElement.addEventListener('touchend', e=>{
+    const t = e.changedTouches?.[0];
+    if(!t || swipeStartX === null || swipeStartY === null) return;
+    const dx = t.clientX - swipeStartX;
+    const dy = t.clientY - swipeStartY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    // Geometry Dash: upward swipe = jump
+    if(isAppOpen('geometryDashLite') && dy < -24 && absY > absX){
+      gdJump();
+      swipeStartX = swipeStartY = null;
+      return;
+    }
+
+    // Car games: horizontal swipe changes lanes
+    if((isAppOpen('carGame') || isAppOpen('kidRacer3D')) && absX > 24 && absX > absY){
+      if(dx < 0){
+        if(isAppOpen('carGame')) moveCarLeft();
+        if(isAppOpen('kidRacer3D')) kidRacerLeft();
+      } else {
+        if(isAppOpen('carGame')) moveCarRight();
+        if(isAppOpen('kidRacer3D')) kidRacerRight();
+      }
+    }
+
+    swipeStartX = swipeStartY = null;
+  }, { passive:true });
+}
+
+
+/* TRANSLATOR + VIDEO HUB */
+const videoFeedState = { posts: [] };
+
+async function translateNow(){
+  const text = (translatorInput?.value || '').trim();
+  const from = translatorFrom?.value || 'en';
+  const to = translatorTo?.value || 'es';
+  if(!text){ if(translatorOutput) translatorOutput.innerText='Type text first.'; return; }
+  if(translatorOutput) translatorOutput.innerText='Translating...';
+  try{
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const t = data?.responseData?.translatedText || '';
+    if(translatorOutput) translatorOutput.innerText = t || 'No translation found.';
+  }catch(e){
+    console.error(e);
+    if(translatorOutput) translatorOutput.innerText='Translation service unavailable right now.';
+  }
+}
+
+function getVideoStorage(){
+  try{ return JSON.parse(localStorage.getItem('videoHubPostsV1')||'[]'); }
+  catch{ return []; }
+}
+function saveVideoStorage(posts){
+  localStorage.setItem('videoHubPostsV1', JSON.stringify(posts.slice(0,120)));
+}
+
+function normalizeVideoUrl(url=''){
+  const v=url.trim();
+  const yt = v.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  return v;
+}
+
+function renderVideoFeed(){
+  if(!videoFeedList) return;
+  if(!videoFeedState.posts.length){ videoFeedList.innerHTML='No videos yet.'; return; }
+  videoFeedList.innerHTML = videoFeedState.posts.map(p=>{
+    const safeTitle = (p.title||'Untitled').replace(/[<>]/g,'');
+    const safeDesc = (p.desc||'').replace(/[<>]/g,'');
+    const url = p.url||'';
+    const isEmbed = url.includes('youtube.com/embed/');
+    const player = isEmbed ? `<iframe src="${url}" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>` : `<video src="${url}" controls></video>`;
+    return `<div class="videoPost"><h5>${safeTitle}</h5>${player}<div style="font-size:12px;opacity:.8;margin-top:6px">${safeDesc}</div><div style="font-size:11px;opacity:.65;margin-top:4px">Published: ${new Date(p.createdAt).toLocaleString()}</div></div>`;
+  }).join('');
+}
+
+function publishVideoPost(){
+  const title=(videoTitleInput?.value||'').trim();
+  const rawUrl=(videoUrlInput?.value||'').trim();
+  const desc=(videoDescInput?.value||'').trim();
+  if(!title || !rawUrl){ if(videoHubStatus) videoHubStatus.innerText='Add title and video URL.'; return; }
+  const post={ id: Date.now().toString(36), title, desc, url: normalizeVideoUrl(rawUrl), createdAt: Date.now() };
+  videoFeedState.posts = [post, ...videoFeedState.posts].slice(0,120);
+  saveVideoStorage(videoFeedState.posts);
+  renderVideoFeed();
+  if(videoHubStatus) videoHubStatus.innerText='Published! It will still be here after reload. Copy share link so others can import and view it.';
+  if(videoTitleInput) videoTitleInput.value='';
+  if(videoUrlInput) videoUrlInput.value='';
+  if(videoDescInput) videoDescInput.value='';
+}
+
+function copyVideoShareLink(){
+  if(!videoFeedState.posts.length){ if(videoHubStatus) videoHubStatus.innerText='Publish a video first.'; return; }
+  const latest = videoFeedState.posts[0];
+  const payload = encodeURIComponent(JSON.stringify(latest));
+  const link = `${location.origin}${location.pathname}#videoPost=${payload}`;
+  navigator.clipboard?.writeText(link).then(()=>{
+    if(videoHubStatus) videoHubStatus.innerText='Share link copied. Anyone opening this link can import and see the video post.';
+  }).catch(()=>{
+    if(videoHubStatus) videoHubStatus.innerText='Copy failed. You can manually copy this URL: '+link;
+  });
+}
+
+function importSharedVideoFromHash(){
+  const hash = location.hash || '';
+  if(!hash.startsWith('#videoPost=')) return;
+  try{
+    const raw = decodeURIComponent(hash.replace('#videoPost=',''));
+    const post = JSON.parse(raw);
+    if(!post?.url || !post?.title) return;
+    const exists = videoFeedState.posts.some(p=>p.id===post.id || (p.title===post.title && p.url===post.url));
+    if(!exists){
+      videoFeedState.posts = [post, ...videoFeedState.posts].slice(0,120);
+      saveVideoStorage(videoFeedState.posts);
+      renderVideoFeed();
+      if(videoHubStatus) videoHubStatus.innerText='Imported shared video post from link.';
+    }
+  }catch(e){ console.error('video hash import error',e); }
+}
+
+videoFeedState.posts = getVideoStorage();
+renderVideoFeed();
+importSharedVideoFromHash();
+window.addEventListener('hashchange', importSharedVideoFromHash);
+
+setDeviceProfile('iphone');
+syncPhoneMakerPreviews();
+runVSCode('home');
+runVSCode('win');
+
+/* CALC */
+function press(v){calcDisplay.value+=v;}
+function calculate(){
+  try{calcDisplay.value=eval(calcDisplay.value);}catch{calcDisplay.value="Error";}
+}
+
+// Expose inline handlers to the window so onclick attributes work
+window.unlock = unlock;
+window.openApp = openApp;
+window.closeApp = closeApp;
+window.openCamera = openCamera;
+window.closeCamera = closeCamera;
+window.openSafariApp = openSafariApp;
+window.closeSafari = closeSafari;
+window.openYouTube = openYouTube;
+window.openWindows11 = openWindows11;
+window.closeWindows11 = closeWindows11;
+window.openWindowsApp = openWindowsApp;
+window.closeWinApp = closeWinApp;
+window.searchEdge = searchEdge;
+window.startFaceID = startFaceID;
+window.stopFaceID = stopFaceID;
+window.openSolarSystem = openSolarSystem;
+window.closeSolarSystem = closeSolarSystem;
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
+window.openMap = openMap;
+window.closeMap = closeMap;
+window.doSearch = doSearch;
+window.geolocate = geolocate;
+window.toggleSatellite = toggleSatellite;
+window.toggleGoogle = toggleGoogle;
+window.setPhoneColor = setPhoneColor;
+window.setPhoneWallpaper = setPhoneWallpaper;
+window.applyPhoneDesign = applyPhoneDesign;
+window.selectRobloxCharacter = selectRobloxCharacter;
+window.playRobloxGame = playRobloxGame;
+window.askBuiltInAI = askBuiltInAI;
+window.clearAI = clearAI;
+window.updateWeather = updateWeather;
+window.runVSCode = runVSCode;
+window.loadVideoFile = loadVideoFile;
+window.updateClipPoint = updateClipPoint;
+window.applyVideoFX = applyVideoFX;
+window.playClip = playClip;
+window.pauseClip = pauseClip;
+window.downloadFrame = downloadFrame;
+window.setDeviceProfile = setDeviceProfile;
+window.setMovieScreenMode = setMovieScreenMode;
+window.startCall = startCall;
+window.endCall = endCall;
+window.openChat = openChat;
+window.sendMessage = sendMessage;
+window.connectRemoteDesktop = connectRemoteDesktop;
+window.openCarGame = openCarGame;
+window.closeCarGame = closeCarGame;
+window.moveCarLeft = moveCarLeft;
+window.moveCarRight = moveCarRight;
+window.activateNitro = activateNitro;
+window.restartCarGame = restartCarGame;
+window.openBaldiBasics = openBaldiBasics;
+window.closeBaldiBasics = closeBaldiBasics;
+window.submitBaldiAnswer = submitBaldiAnswer;
+window.skipBaldiQuestion = skipBaldiQuestion;
+window.restartBaldiBasics = restartBaldiBasics;
+window.openKidRacer3D = openKidRacer3D;
+window.closeKidRacer3D = closeKidRacer3D;
+window.kidRacerLeft = kidRacerLeft;
+window.kidRacerRight = kidRacerRight;
+window.kidRacerBoost = kidRacerBoost;
+window.restartKidRacer3D = restartKidRacer3D;
+window.openGeometryDashLite = openGeometryDashLite;
+window.closeGeometryDashLite = closeGeometryDashLite;
+window.gdJump = gdJump;
+window.gdToggleMode = gdToggleMode;
+window.gdRestart = gdRestart;
+window.translateNow = translateNow;
+window.publishVideoPost = publishVideoPost;
+window.copyVideoShareLink = copyVideoShareLink;
+
+</script>
+</body>
+</html>
